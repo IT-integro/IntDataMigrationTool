@@ -8,6 +8,8 @@ on:
       - '.github/workflows/*.yaml'
       - '!.github/workflows/CICD.yaml'
     branches: [ 'main', 'release/*', 'feature/*' ]
+  pull_request:
+    branches: ['main']
 
 defaults:
   run:
