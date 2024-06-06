@@ -2,6 +2,14 @@ name: ' Test Next Minor'
 
 on:
   workflow_dispatch:
+  push:
+    paths-ignore:
+      - '**.md'
+      - '.github/workflows/*.yaml'
+      - '!.github/workflows/NextMinor.yaml'
+    branches: [ 'main', 'release/*', 'feature/*' ]
+  pull_request:
+    branches: ['main']
 
 permissions:
   contents: read
