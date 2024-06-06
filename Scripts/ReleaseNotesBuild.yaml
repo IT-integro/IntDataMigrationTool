@@ -1,0 +1,160 @@
+trigger:
+  branches:
+    include:
+    - master
+    - release
+  paths:
+    exclude:
+    - Docs
+
+
+resources:
+  repositories:
+    - repository: Scripts
+      type: git
+      name: IntDevOpsScripts/ALScripts
+
+pool:
+  vmImage: windows-latest
+stages:
+- stage: Build_Release_Notes
+  jobs:
+      - job: ReleaseNotesTests
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/heads/master')
+        variables:
+          ArtifactsTempDir: Artifacts
+        steps:
+        - checkout: self
+          persistCredentials: true
+          clean: true 
+        - checkout: Scripts
+        - task: PowerShell@2
+          displayName: Create artifacs temp directories
+          inputs:
+            targetType: inline
+            script: |
+              mkdir $(Build.SourcesDirectory)\$(Build.Repository.Name)\$(ArtifactsTempDir)
+              mkdir $(Build.SourcesDirectory)\$(Build.Repository.Name)\$(ArtifactsTempDir)\en-us
+              mkdir $(Build.SourcesDirectory)\$(Build.Repository.Name)\$(ArtifactsTempDir)\pl-pl
+        - task: PowerShell@2
+          name: GetAppVersion
+          displayName: Get app version from app.json
+          inputs:
+            targetType: inline
+            script: |
+              $manifestContent = Get-Content -Path $(Build.SourcesDirectory)\$(Build.Repository.Name)\Apps\**\app.json | ConvertFrom-Json
+              $version = $manifestContent.version
+              $appVersion = $version.Substring(0,$version.LastIndexOf('.'))
+              Write-Host "##vso[task.setvariable variable=appVersion]$appVersion"
+        
+        - task: XplatGenerateReleaseNotes@3
+          displayName: Create Task Work Item record
+          inputs:
+            outputfile: '$(Build.SourcesDirectory)\$(Build.Repository.Name)\$(ArtifactsTempDir)\en-us\Tasks.md'
+            templateLocation: 'File'
+            templatefile: '$(Build.SourcesDirectory)\$(Build.Repository.Name)\Scripts\Resources\en-us\ReleaseNote.Tasks.Template.md'
+            showOnlyPrimary: true
+            dumpPayloadToConsole: false
+            dumpPayloadToFile: false
+            replaceFile: True
+            getParentsAndChildren: False
+            getAllParents: False
+            getIndirectPullRequests: False
+            stopOnError: False
+
+        - task: XplatGenerateReleaseNotes@3
+          displayName: Create Task Work Item record - Translation
+          inputs:
+            outputfile: '$(Build.SourcesDirectory)\$(Build.Repository.Name)\$(ArtifactsTempDir)\pl-pl\Tasks.md'
+            templateLocation: 'File'
+            templatefile: '$(Build.SourcesDirectory)\$(Build.Repository.Name)\Scripts\Resources\pl-pl\ReleaseNote.Tasks.Template.md'
+            showOnlyPrimary: true
+            dumpPayloadToConsole: false
+            dumpPayloadToFile: false
+            replaceFile: True
+            getParentsAndChildren: False
+            getAllParents: False
+            getIndirectPullRequests: False
+            stopOnError: False
+
+        - task: XplatGenerateReleaseNotes@3
+          displayName: Create Issue Work Item record
+          inputs:
+            outputfile: '$(Build.SourcesDirectory)\$(Build.Repository.Name)\$(ArtifactsTempDir)\en-us\Issues.md'
+            templateLocation: 'File'
+            templatefile: '$(Build.SourcesDirectory)\$(Build.Repository.Name)\Scripts\Resources\en-us\ReleaseNote.Issues.Template.md'
+            showOnlyPrimary: true
+            dumpPayloadToConsole: false
+            dumpPayloadToFile: false
+            replaceFile: True
+            getParentsAndChildren: False
+            getAllParents: False
+            getIndirectPullRequests: False
+            stopOnError: False
+
+        - task: XplatGenerateReleaseNotes@3
+          displayName: Create Issue Work Item record - Translation
+          inputs:
+            outputfile: '$(Build.SourcesDirectory)\$(Build.Repository.Name)\$(ArtifactsTempDir)\pl-pl\Issues.md'
+            templateLocation: 'File'
+            templatefile: '$(Build.SourcesDirectory)\$(Build.Repository.Name)\Scripts\Resources\pl-pl\ReleaseNote.Issues.Template.md'
+            showOnlyPrimary: true
+            dumpPayloadToConsole: false
+            dumpPayloadToFile: false
+            replaceFile: True
+            getParentsAndChildren: False
+            getAllParents: False
+            getIndirectPullRequests: False
+            stopOnError: False
+
+        - task: PowerShell@2
+          displayName: Build Release Notes
+          inputs:
+            filePath:  $(Build.SourcesDirectory)/ALScripts/src/Build-ReleaseNotes.ps1
+            arguments: '-TemplatePath "$(Build.SourcesDirectory)\$(Build.Repository.Name)\Docs\en-us\Release-Notes.md" -TasksFilePath "$(Build.SourcesDirectory)\$(Build.Repository.Name)\$(ArtifactsTempDir)\en-us\Tasks.md" -IssuesFilePath "$(Build.SourcesDirectory)\$(Build.Repository.Name)\$(ArtifactsTempDir)\en-us\Issues.md" -VersionNo "$(appVersion)" -ReleaseNotesPath "$(Build.SourcesDirectory)\$(Build.Repository.Name)\Docs\en-us\Release-Notes.md"'
+
+        - task: PowerShell@2
+          displayName: Build Release Notes
+          inputs:
+            filePath:  $(Build.SourcesDirectory)/ALScripts/src/Build-ReleaseNotes.ps1
+            arguments: '-TemplatePath "$(Build.SourcesDirectory)\$(Build.Repository.Name)\Docs\pl-pl\Release-Notes.md" -TasksFilePath "$(Build.SourcesDirectory)\$(Build.Repository.Name)\$(ArtifactsTempDir)\pl-pl\Tasks.md" -IssuesFilePath "$(Build.SourcesDirectory)\$(Build.Repository.Name)\$(ArtifactsTempDir)\pl-pl\Issues.md" -VersionNo "$(appVersion)" -ReleaseNotesPath "$(Build.SourcesDirectory)\$(Build.Repository.Name)\Docs\pl-pl\Release-Notes.md"'
+
+
+        - task: PowerShell@2
+          displayName: Commit Release Notes
+          inputs:
+            targetType: 'inline'
+            script: |
+              git config --global core.autocrlf false
+              git config user.email office@it.integro.pl
+              git config user.name "IT.Integro"
+              git add "$(Build.SourcesDirectory)\$(Build.Repository.Name)\Docs\*"
+              git commit -m 'Added Release Notes'
+              git push origin HEAD:master --force
+            workingDirectory: $(Build.SourcesDirectory)\$(Build.Repository.Name)
+            
+      - job : CleanLists
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/heads/release')
+        steps:
+        - checkout: self
+          persistCredentials: true
+          clean: true 
+        - checkout: Scripts
+
+        - task: Powershell@2
+          displayName: Clean
+          inputs:
+            targetType: 'inline'
+            script: |
+              $ReleaseNotes = Get-Content "$(Build.SourcesDirectory)\$(Build.Repository.Name)\Scripts\Resources\pl-pl\release-notes-template.md"
+              Set-Content -Path "$(Build.SourcesDirectory)\$(Build.Repository.Name)\Docs\pl-pl\Release-Notes.md" -Value $ReleaseNotes
+              $ReleaseNotes = Get-Content "$(Build.SourcesDirectory)\$(Build.Repository.Name)\Scripts\Resources\en-us\release-notes-template.md"
+              Set-Content -Path "$(Build.SourcesDirectory)\$(Build.Repository.Name)\Docs\en-us\Release-Notes.md" -Value $ReleaseNotes
+              git config --global core.autocrlf false
+              git config user.email office@it.integro.pl
+              git config user.name "IT.Integro"
+              git add '$(Build.SourcesDirectory)\$(Build.Repository.Name)\Docs\pl-pl\Release-Notes.md'
+              git add '$(Build.SourcesDirectory)\$(Build.Repository.Name)\Docs\en-us\Release-Notes.md'
+              git commit -m 'Clean After Release'
+              git push origin HEAD:master --force
+            workingDirectory: $(Build.SourcesDirectory)\$(Build.Repository.Name)

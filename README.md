@@ -1,10 +1,19 @@
-# AL-Go Per Tenant Extension Template
-This template repository can be used for managing AppSource Apps for Business Central.
+# IT integro project
+## Introduction
+TODO: Briefly describe the project and the functionality it provides
 
-Please go to https://aka.ms/AL-Go to learn more.
+## Getting Started
+TODO: Update the steps according to the project
+If you wan to start developing a new feature please follow the instructions below:
+1. Create a (virtual machine with NAV <version>/container from image <baseImage>).
+1. Clone this repository locally.
+1. Update your objects on the (virtual machine/container) with the objects from repo - master branch.
+1. Create new branch with feature name. The new branch should start from commit <firstCommitID>.
+1. Switch to the new branch. Export all objects from the database which should be related to the new feature (use Modified flag).
+1. Start developement on the new feature branch.
 
-## Contributing
+## Build and Test
+TODO: Describe and show how to build your code and run the tests.
 
-Please read [this](https://github.com/microsoft/AL-Go/blob/main/Scenarios/Contribute.md) description on how to contribute to AL-Go for GitHub.
-
-We do not accept Pull Requests on the template repository directly.
+## Contribute
+TODO: Explain how other users and developers can contribute to make your code better.

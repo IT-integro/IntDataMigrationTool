@@ -1,0 +1,33 @@
+{
+  "id": "555a5c19-5efe-4440-a974-5a16e59b05eb",
+  "name": "IntDataMigrationTool",
+  "publisher": "IT.integro sp. z o.o.",
+  "version": "1.2.2.0",
+  "target": "OnPrem",
+  "brief": "",
+  "description": "",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "dependencies": [],
+  "screenshots": [],
+  "platform": "1.0.0.0",
+  "application": "21.0.0.0",
+  "idRanges": [
+    {
+      "from": 99000,
+      "to": 99900
+    }
+  ],
+  "resourceExposurePolicy": {
+    "allowDebugging": true,
+    "allowDownloadingSource": true,
+    "includeSourceInSymbolFile": true
+  },
+  "runtime": "10.2",
+  "features": [
+    "NoImplicitWith"
+  ]
+}
