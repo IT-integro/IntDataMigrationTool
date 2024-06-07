@@ -1,6 +1,6 @@
 {
   "country": "w1",
-  "appFolders": [],
+  "appFolders": ["IntDataMigrationTool"],
   "testFolders": [],
   "bcptTestFolders": []
 }
