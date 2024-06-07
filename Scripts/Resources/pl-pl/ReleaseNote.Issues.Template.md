@@ -1,1 +1,0 @@
-{{#forEach this.workItems}} {{#if isFirst}} {{#if (eq (lookup this.fields 'System.WorkItemType') 'Issue')}} |{{this.id}}|{{{lookup this.fields 'Custom.DescriptionTranslation'}}}| {{/if}} {{/if}} {{/forEach}}
