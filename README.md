@@ -19,7 +19,7 @@ Aplikacja Data Migration Tool służy do szybkiej migracji danych pomiędzy Dyna
 > Użycie aplikacji Data Migration Tool jest możliwe jedynie wtedy, gdy **po stronie celu nie jest wykorzystywane środowisko multitenant**.
 
 Schemat działania:
-![Schemat działania](Schema.png "Schemat działania")
+![Schemat działania](./Schema.png)
 
 Data Migration Tool można wykorzystać również w przypadku kiedy baza docelowa i źródłowa znajdują się na jednym serwerze.
 
@@ -53,7 +53,7 @@ Pierwszym krokiem w procesie migracji danych jest ustawienie danych dostępowych
 
 Aby wprowadzić lub zmodyfikować ustawienia baz danych:
 
-1. Wybierz ikonę ![ ](search-small.png "Powiedz mi co  chcesz zrobić"), wprowadź **SQL Databases**, a następnie kliknij powiązane łącze.
+1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](./search-small.png), wprowadź **SQL Databases**, a następnie kliknij powiązane łącze.
 2. Na stronie SQL Databases uzupełnij pola:
    - **Code** - określa kod bazy danych.
    - **Server Name** - nazwa serwera (lub adres IP) na którym znajduje się definiowana baza danych.
@@ -82,7 +82,7 @@ Struktura obiektów aplikacji NAV orac BC zapisywana jest w postaci metadanych p
 
 Aby pobrać metadane z bazy, które obsługują wersje systemu wyższe od NAV 2013R2:
 
-1. Wybierz ikonę ![ ](search-small.png "Powiedz mi co  chcesz zrobić"), wprowadź **SQL Databases**, a następnie kliknij powiązane łącze.
+1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](./search-small.png), wprowadź **SQL Databases**, a następnie kliknij powiązane łącze.
 2. Na stronie SQL Databases wybierz bazę dla której chcesz pobrać metadane.
 3. Z zakładki **Actions** wybierz akcję **Get Metadata**.
 4. Jeżeli ustawienia bazy danych były poprawnie zdefiniowane proces pobierania metadanych rozpocznie się automatycznie.
@@ -96,7 +96,7 @@ Dla wersji wcześniejszych niż Dynamics NAV 2013 R2 Microsoft stosował nieudok
 
 1. Pobrać codeunit umożliwiający eksport danych z wcześniejszych wersji systemu
 
-    * Wybierz ikonę ![ ](search-small.png "Powiedz mi co  chcesz zrobić"), wprowadź **Application Metadata Set List**, a następnie kliknij powiązane łącze.
+    * Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](./search-small.png), wprowadź **Application Metadata Set List**, a następnie kliknij powiązane łącze.
     * Na stronie Application Metadata Set List uruchom akcję **Get Export CU for NAV 2009**.
     
 2. Dostosować pobrany Codeunit 90010 Export Objects Metadata do posiadanej wersji systemu Dynamics NAV, zaimportować oraz skompilować. Codeunit pozwala na eksport metadanych do pliku w formacie umożliwiającym wczytanie do aplikacji Data Migration Tool.
@@ -105,7 +105,7 @@ Dla wersji wcześniejszych niż Dynamics NAV 2013 R2 Microsoft stosował nieudok
 
 4. Wczytać plik metadanych do aplikacji Data Migration Tool
 
-    * Wybierz ikonę ![ ](search-small.png "Powiedz mi co  chcesz zrobić"), wprowadź **Application Metadata Set List**, a następnie kliknij powiązane łącze.
+    * Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](./search-small.png), wprowadź **Application Metadata Set List**, a następnie kliknij powiązane łącze.
     * Na stronie Application Metadata Set List utwórz nowy rekord, uzupełnij pola:
         * Code - kod metadanych
         * Description - opis metadanych
@@ -114,7 +114,7 @@ Dla wersji wcześniejszych niż Dynamics NAV 2013 R2 Microsoft stosował nieudok
 
 5. Następnie aby pobrać wczytane metadane do struktury aplikacji Data Migration Tool:
 
-    * Wybierz ikonę ![ ](search-small.png "Powiedz mi co  chcesz zrobić"), wprowadź **SQL Databases**, a następnie kliknij powiązane łącze.
+    * Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](./search-small.png), wprowadź **SQL Databases**, a następnie kliknij powiązane łącze.
     * Na stronie Application Metadata Set List wybierz bazę dla której chcesz pobrać metadane.
     * Rozwiń listę w polu **Use Metadata Set Code** i wybierz kod metadanych utworzony w kroku 4.
     * Wybierz akcję **Get Metadata** aby zaimportować dane.
@@ -127,7 +127,7 @@ Zestaw danych migracji reprezentuje zbór danych, które będą migrowane z bazy
 
 Aby utworzyć lub zmodyfikować zestaw danych migracji:
 
-1. Wybierz ikonę ![ ](search-small.png "Powiedz mi co  chcesz zrobić"), wprowadź **Migration Datasets**, a następnie kliknij powiązane łącze.
+1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](./search-small.png), wprowadź **Migration Datasets**, a następnie kliknij powiązane łącze.
 2. Na stronie Migration Datasets utwórz nowy zestaw danych migracji lub zmodyfikuj istniejący.
 3. Wprowadź odpowiednie wartości w sekcji **General** oraz **Migration Dataset Tables**
 
@@ -229,7 +229,7 @@ Nowy mapping można utworzyć na kilka sposobów.
 
 Mapping można utworzyć całkowicie manualnie. 
 
-1. Wybierz ikonę ![ ](search-small.png "Powiedz mi co  chcesz zrobić"), wprowadź **Mappings**, a następnie kliknij powiązane łącze.
+1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](./search-small.png), wprowadź **Mappings**, a następnie kliknij powiązane łącze.
 2. Na stronie Mappings utwórz nowy mapping, uzupełnij pola:
 
 - **Code** - określa kod mappingu.
@@ -254,7 +254,7 @@ Mapping można utworzyć całkowicie manualnie.
 
 Zestaw danych migracji może być zapisany jako mapping oraz użyty w innym projekcie lub np np podczas migracji produkcyjnej na innym środowisku.
 
-1. Wybierz ikonę ![ ](search-small.png "Powiedz mi co  chcesz zrobić"), wprowadź **Migration Datasets**, a następnie kliknij powiązane łącze.
+1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](./search-small.png), wprowadź **Migration Datasets**, a następnie kliknij powiązane łącze.
 2. Na stronie Migration Datasets wybierz zestaw danych migracji dla którego chcesz zapisać mapping i wybierz akcję Edit
 3. Na stronie Migraton Dataset Card wybierz akcję Mapping/Create Mapping from Dataset.
 4. Wprowadź Kod oraz Opis dla nowego mappingu i wybierz przycisk OK.
@@ -267,7 +267,7 @@ Utworzony mapping można wyeksportować do pliku, a następnie importować w inn
 
 #### Eksportowanie
 
-1. Wybierz ikonę ![ ](search-small.png "Powiedz mi co  chcesz zrobić"), wprowadź **Mappings**, a następnie kliknij powiązane łącze.
+1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](./search-small.png), wprowadź **Mappings**, a następnie kliknij powiązane łącze.
 2. Na stronie Mappings wybierz mapping, który chcesz wyeksportować do pliku.
 3. Następnie wybierz akcję Export Mapping.
 
@@ -275,7 +275,7 @@ Plik mappingu zostanie zapisany w domyślnej lokalizacji dla pobranych plików p
 
 #### Importowanie
 
-1. Wybierz ikonę ![ ](search-small.png "Powiedz mi co  chcesz zrobić"), wprowadź **Mappings**, a następnie kliknij powiązane łącze.
+1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](./search-small.png), wprowadź **Mappings**, a następnie kliknij powiązane łącze.
 2. Na stronie Mappings utwórz nowy mapping, uzupełnij pola:
 
 - **Code** - określa kod mappingu.
@@ -295,7 +295,7 @@ Wykorzystanie mappingu możliwe jest na dwa sposoby.
 
 Aby wstawić tabele oraz ustawienia mapowania pól do nowego zestawu migracji danych:
 
-1. Wybierz ikonę ![ ](search-small.png "Powiedz mi co  chcesz zrobić"), wprowadź **Migration Datasets**, a następnie kliknij powiązane łącze.
+1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](./search-small.png), wprowadź **Migration Datasets**, a następnie kliknij powiązane łącze.
 2. Na stronie Migration Datasets wybierz zestaw danych migracji do którego chcesz wstawić mapping i wybierz akcję Edit
 3. Na stronie Migraton Dataset Card wybierz akcję Mapping/Insert Mapping.
 4. Wybierz kod mappingu, który chcesz wstawić do wybranego zestawu migracji danych.
@@ -311,7 +311,7 @@ W tym przypadku zostaną automatycznie uzupełnione ustawienia mapowania pól ta
 
 Aby uzupełnić istniejące ustawienia mapowania w zestawie migracji:
 
-1. Wybierz ikonę ![ ](search-small.png "Powiedz mi co  chcesz zrobić"), wprowadź **Migration Datasets**, a następnie kliknij powiązane łącze.
+1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](./search-small.png), wprowadź **Migration Datasets**, a następnie kliknij powiązane łącze.
 2. Na stronie Migration Datasets wybierz zestaw danych migracji dla którego chcesz zastosować zapisany mapping i wybierz akcję Edit
 3. Na stronie Migraton Dataset Card wybierz akcję Mapping/Update Mapping.
 4. Wybierz kod mappingu, który chcesz zastosować do wybranego zestawu migracji danych.
@@ -323,7 +323,7 @@ Przed wykorzystaniem ustawień zawartych w zestawie danych migracji do wygenerow
 
 Aby zwolnić utworzony zestaw danych migracji:
 
-1. Wybierz ikonę ![ ](search-small.png "Powiedz mi co  chcesz zrobić"), wprowadź **Migration Datasets**, a następnie kliknij powiązane łącze.
+1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](./search-small.png), wprowadź **Migration Datasets**, a następnie kliknij powiązane łącze.
 2. Na stronie Migration Datasets wybierz zestaw danych migracji który chcesz zwolnić i wybierz akcję Edit
 3. Na stronie Migraton Dataset Card wybierz akcję Release.
 4. Jeżeli zestaw danych migracji nie zawiera błędów, pole Released zostanie zaznaczone.
@@ -346,7 +346,7 @@ Aplikacja Data Migration Tool umożliwia utworzenie ustawień umożliwiających 
 
 Aby utworzyć nową migrację:
 
-1. Wybierz ikonę ![ ](search-small.png "Powiedz mi co  chcesz zrobić"), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
+1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](./search-small.png), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
 2. Na stronie Migrations utwórz nową migrację lub zmodyfikuj istniejącą.
 3. Uzupełnij pola:
 
@@ -365,7 +365,7 @@ Aby utworzyć nową migrację:
 
 Przed uruchomieniem procesu migracji należy wygenerować zapytania SQL.
 
-1. Wybierz ikonę ![ ](search-small.png "Powiedz mi co  chcesz zrobić"), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
+1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](./search-small.png), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
 2. Na stronie Migrations wybierz migrację, dla której chcesz wygenerować zapytania SQL.
 3. Wybierz akcję **Generate Queries** aby wygenerować zapytania SQL.
 
@@ -375,7 +375,7 @@ System rozpocznie generowanie zapytań SQL. Jeżeli proces zakończy się powodz
 
 Aby sprawdzić jakie zapytania SQL zostały wygenerowane:
 
-1. Wybierz ikonę ![ ](search-small.png "Powiedz mi co  chcesz zrobić"), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
+1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](./search-small.png), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
 2. Na stronie Migrations wybierz migrację, dla której pole **Generated Queries** jest zaznaczone.
 3. Wybierz akcję **Related/Queries**
 4. Strona **Migration SQL Queries zawiera nieedytowalne pola:
@@ -397,7 +397,7 @@ W momencie uruchomienia migracji najpierw wykonywane jest zapytanie linkujące s
 
 Aby edytować lub podejrzeć zapytanie SQL linkujące serwery:
 
-1. Wybierz ikonę ![ ](search-small.png "Powiedz mi co  chcesz zrobić"), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
+1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](./search-small.png), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
 2. Na stronie Migrations wybierz migrację, dla której pole **Generated Queries** jest zaznaczone.
 3. Wybierz akcję **Related/Edit Linked Server Query** aby przejść do podglądu i edycji zapytania 
 
@@ -408,7 +408,7 @@ Aby zapisać wprowadzone zmiany użyj akcji **Save**.
 
 Aby edytować lub podejrzeć zapytanie SQL odpowiadające za transfer danych:
 
-1. Wybierz ikonę ![ ](search-small.png "Powiedz mi co  chcesz zrobić"), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
+1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](./search-small.png), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
 2. Na stronie Migrations wybierz migrację, dla której pole **Generated Queries** jest zaznaczone.
 3. Wybierz akcję **Related/Queries**.
 4. Wybierz zapytanie, które chcesz podejrzeć lub edytować.
@@ -423,7 +423,7 @@ Aplikacja Data Migration Tool pozwala na uruchomienie wygenerowanych zapytań SQ
 
 ### Pobieranie zapytań SQL.
 
-1. Wybierz ikonę ![ ](search-small.png "Powiedz mi co  chcesz zrobić"), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
+1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](./search-small.png), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
 2. Na stronie Migrations wybierz migrację, dla której pole **Generated Queries** jest zaznaczone.
 3. Wybierz akcję **Related/Queries**.
 4. Zaznacz jedno lub więcej zapytań, które chcesz pobrać.
@@ -443,7 +443,7 @@ Aplikacja Data Migration Tool umożliwia uruchomienie oraz monitoring wykonywani
 
 Aby uruchomić sekwencyjnie wszystkie wygenerowane zapytania dla wybranej migracji:
 
-1. Wybierz ikonę ![ ](search-small.png "Powiedz mi co  chcesz zrobić"), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
+1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](./search-small.png), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
 2. Na stronie Migrations wybierz migrację, którą chcesz uruchomić, dla której pole **Generated Queries** jest zaznaczone.
 3. Wybierz akcję **Execute In Background**
 4. System rozpocznie sekwencyjne uruchamianie zapytań w sesji w tle.
@@ -452,7 +452,7 @@ Aby uruchomić sekwencyjnie wszystkie wygenerowane zapytania dla wybranej migrac
 
 Aby uruchomić pojedyncze wygenerowane zapytanie dla wybranej migracji:
 
-1. Wybierz ikonę ![ ](search-small.png "Powiedz mi co  chcesz zrobić"), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
+1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](./search-small.png), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
 2. Na stronie Migrations wybierz migrację, której zapytanie chcesz uruchomić, dla której pole **Generated Queries** jest zaznaczone.
 4. Wybierz akcję **Related/Queries** aby przejść do listy wygenerowanych zapytań SQL.
 5. Na stronie **Migration SQL Queries** Wybierz zapytanie, które chcesz uruchomić 
@@ -463,7 +463,7 @@ Aby uruchomić pojedyncze wygenerowane zapytanie dla wybranej migracji:
 
 Aby monitorować status sesji działających w tle.
 
-1. Wybierz ikonę ![ ](search-small.png "Powiedz mi co  chcesz zrobić"), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
+1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](./search-small.png), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
 2. Na stronie Migrations wybierz migrację, którą chcesz monitorować.
 3. Wybierz akcję **Related/Migration Background Sessions**
 4. Strona **Migr. Background Sessions** zawiera następujące pola:
@@ -479,7 +479,7 @@ Aby monitorować status sesji działających w tle.
 
 Aby monitorować status wykonanych zapytań.
 
-1. Wybierz ikonę ![ ](search-small.png "Powiedz mi co  chcesz zrobić"), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
+1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](./search-small.png), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
 2. Na stronie Migrations wybierz migrację, którą chcesz monitorować.
 3. Wybierz akcję **Related/Log Entries**
 4. Strona **Migration Log Entries** zawiera następujące pola:
