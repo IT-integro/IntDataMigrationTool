@@ -1,495 +1,492 @@
 # Data Migration Tool
 
-Aplikacja Data Migration Tool służy do szybkiej migracji danych pomiędzy Dynamics NAV od wersji 2009 do Business Central. Migracja wykonywana jest w jednym kroku z wykorzystaniem automatycznie wygenerowanych zapytań SQL wykonywanych bezpośrednio na serwerze źródłowym lub docelowym.
-​Główne zalety z zastosowania aplikacji Migration Tool to:
+Data Migration Tool is used to quickly migrate data between Dynamics NAV 2009 and later versions to Business Central. The migration is performed in one step by using automatically generated SQL queries that are executed directly on the source or target server.
+The main advantages of using Data Migration Tool are:
 
-1. Pełna migracja danych​
-2. Możliwość uruchomienia wersji produkcyjnej BC w dowolnym momencie.​
-3. Migracja danych Dynamics NAV od wersji 2009 do Business Central w jednym kroku​
-4. Migracja danych aplikacji standardowej oraz modułów dodanych (np. Polish Localization)​
-5. Szybka migracja dużych ilości danych.​
-6. Wspomaganie w mapowaniu danych.​
-7. Kontrola poprawności mapowania.​
-8. Możliwość eksportu oraz importu mapowania.
-
-> [!CAUTION]
-> Użycie aplikacji Data Migration Tool jest możliwe jedynie wtedy, gdy **po stronie źródła nie są wykorzystywane aplikacje zawierające Table Extensions**.
+1. Complete data migration
+2. Ability to launch a Business Central production version at any time
+3. One-step migration of Dynamics NAV 2009 and later versions to Business Central
+4. Migration of standard application data and add-on modules (e.g. Polish Localization)
+5. Quick migration of large data volumes
+6. Supported data mapping
+7. Mapping validation check
+8. Ability to export and import a mapping
 
 > [!CAUTION]
-> Użycie aplikacji Data Migration Tool jest możliwe jedynie wtedy, gdy **po stronie celu nie jest wykorzystywane środowisko multitenant**.
+> You can only use Data Migration Tool if **applications that contain Table Extensions are not used on the source side**.
 
-Schemat działania:
-![Schemat działania](./Schema.png)
+> [!CAUTION]
+> You can only use Data Migration Tool if the **multi-tenant environment is not used on the target side**.
 
-Data Migration Tool można wykorzystać również w przypadku kiedy baza docelowa i źródłowa znajdują się na jednym serwerze.
+Operation Diagram
+![Operation Diagram](Schema.png "Operation Diagram")
 
-Aplikacja Data Migration Tool może być zainstalowana na dowolnej instancji Business Central od wersji 22.3. Warunkiem jest, aby środowisko, na którym działa instancja (np kontener) miało dostęp do migrowanych serwerów SQL (źródłowego i docelowego). Dostęp może być realizowany poprzez sieć VPN, prędkość transmisji danych pomiędzy środowiskiem, na którym działa aplikacja a serwerami SQL nie wpływa w zauważalny sposób na proces migracji.
+Data Migration Tool can also be used when the target and source databases are located on the same server.
+
+Data Migration Tool can be installed on any Business Central instance 22.3 and later versions. The condition is that the environment on which the instance is running (e.g. a container) has access to the migrated SQL servers (the source and target servers). Access can be provided via VPN. The speed of data transfer between the environment on which the application runs and SQL servers does not noticeably affect the migration process.
 
 > [!TIP]
-> Po zainstalowaniu aplikacji w celu ułatwienia pracy, sugerujemy ustawienie roli użytkownika na **Data Migration Specialist**.
+> After installing the application, for ease of use, we suggest setting the user role to **Data Migration Specialist**.
 
-# Kroki migracji danych
+## Data migration steps
 
-Poniżej przedstawiono kroki, które należy wykonać, aby przeprowadzić migrację danych z wykorzystaniem aplikacji Data Migration Tool:
+The steps to migrate data by using Data Migration Tool are listed below:
 
-1. Zdefiniować bazy danych biorących w migracji
-2. Pobrać metadane
-3. Zweryfikować poprawność pobranych metadanych
-4. Utworzyć zestaw danych migracji
-5. Zapisywanie i używanie zapisanych mapowań
-6. Zwolnić zestaw danych migracji
-7. Stworzyć rekord migracji
-8. Wygenerować zapytania SQL
-9. Uruchomić zapytania SQL
+1. Define the databases involved in the migration process.
+2. Get the metadata.
+3. Verify the correctness of the downloaded metadata.
+4. Create a migration dataset.
+5. Save and use saved mappings.
+6. Release the migration dataset.
+7. Create a migration record.
+8. Generate SQL queries.
+9. Run SQL queries.
 
-Poszczególne kroki zostaną szczegółowo omówione poniżej 
+Each of the steps will be discussed in detail in the following sections.
 
+## Database setup
 
-# Ustawienia Baz Danych
+The first step in the data migration process is to define the setup for the data used to access the source (NAV) and target (BC) SQL databases.
 
-Pierwszym krokiem w procesie migracji danych jest ustawienie danych dostępowych do baz SQL źródłowej (NAV) i docelowej (BC).
+### Setup
 
-## Ustawienia
+To enter or modify database settings:
 
-Aby wprowadzić lub zmodyfikować ustawienia baz danych:
-
-1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](/search-small.png), wprowadź **SQL Databases**, a następnie kliknij powiązane łącze.
-2. Na stronie SQL Databases uzupełnij pola:
-   - **Code** - określa kod bazy danych.
-   - **Server Name** - nazwa serwera (lub adres IP) na którym znajduje się definiowana baza danych.
-   - **Database Name** - nazwa bazy danych.
-   - **User Name** - nazwa użytkownika bazy danych.
-   - **Password** -  hasło do konta użytkownika bazy danych.
-   - **Use Metadata Set Code** - kod metadanych - pole wykorzystywane w przypadku migracji z wersji starszych niż NAV 2013R2. Więcej informacji zamieszczono w rozdziale **Pobranie metadanych** 
-   - **Forbidden Chars** - pole uzupełniane automatycznie - określa niedozwolone znaki w nazwach tabel SQL.
-   - **Application Version** - pole uzupełniane automatycznie określa wersję aplikacji NAV lub BC.
-
-    > [!CAUTION]
-    > Wybrany do migracji użytkownik bazy danych musi posiadać uprawnienia pozwalające na odczytywanie i modyfikację wszystkich danych w bazie.
+1. Choose the ![ ](search-small.png "Tell me what you want to do") icon, enter **SQL Databases**, and then choose the related link.
+2. On the **SQL Databases** page, fill in the following fields:
+   - **Code** - Specifies the database code.
+   - **Server Name** - Specifies the name of the server (or IP address) on which the defined database is located.
+   - **Database Name** - Specifies the name of the database.
+   - **User Name** - Specifies the name of the database user.
+   - **Password** - Specifies the password of the database user account.
+   - **Use Metadata Set Code** - Specifies the metadata code. This field is used in migration from versions earlier than NAV 2013 R2. For more information, see **Metadata download**.
+   - **Forbidden Chars** - The field is completed automatically. Specifies characters that are not allowed in SQL table names.
+   - **Application Version** - The field is completed automatically. Specifies the version of NAV or BC.
 
     > [!CAUTION]
-    > Na stronie SQL Databases Należy utworzyć dwa osobne rekordy dla bazy SQL źródłowej i docelowej.
+    > The database user selected for migration must have permissions that allow them to read and modify all data in the database.
 
-# Pobieranie Metadanych
+    > [!CAUTION]
+    > On the **SQL Databases** page, create two separate records for the source and target SQL databases.
 
-Struktura obiektów aplikacji NAV orac BC zapisywana jest w postaci metadanych przechowywanych w bazie danych SQL. Aplikacja Data Migration Tool wykorzystuje metadane aby:
+### Metadata download
 
-1. Utworzyć niezbędne struktury umożliwiające łatwe ustawienie mapowania tabel oraz pól.
-2. Umożliwić weryfikację poprawności mapowania.
-3. Wygenerować zapytania SQL, które są odpowiedzialne bezpośrednio za proces migracji.
+The structure of NAV and BC objects is stored as metadata in the SQL database. Data Migration Tool uses this metadata to:
 
-## Pobieranie metadanych dla Dynamics NAV 2013 R2 oraz późniejszych
+1. Create the necessary structures to easily set up table and field mappings.
+2. Enable verification of the correctness of the mapping.
+3. Generate SQL queries that are directly responsible for the migration process.
 
-Aby pobrać metadane z bazy, które obsługują wersje systemu wyższe od NAV 2013R2:
+### Download metadata for Dynamics NAV 2013 R2 and later versions
 
-1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](/search-small.png), wprowadź **SQL Databases**, a następnie kliknij powiązane łącze.
-2. Na stronie SQL Databases wybierz bazę dla której chcesz pobrać metadane.
-3. Z zakładki **Actions** wybierz akcję **Get Metadata**.
-4. Jeżeli ustawienia bazy danych były poprawnie zdefiniowane proces pobierania metadanych rozpocznie się automatycznie.
+To retrieve metadata from the database that supports system versions later than NAV 2013R2:
 
-Proces pobierania metadanych jest dość złożony i może trwać od kilkunastu do nawet kilkudziesięciu minut (w zależności od stopnia złożoności modyfikacji).
-Jeżeli proces zakończy się sukcesem, pole Metadata Exists będzie zaznaczone automatycznie.
+1. Choose the ![ ](search-small.png "Tell me what you want to do") icon, enter **SQL Databases**, and then choose the related link.
+2. On the **SQL Databases** page, select the database for which you want to retrieve metadata.
+3. On the **Actions** tab, choose the **Get Metadata** action.
+4. If the database settings were correctly defined, the metadata download process will start automatically.
 
-## Pobieranie metadanych dla wersji od Dynamics NAV 2009 do 2013 R2
+The process of downloading metadata is quite complex and can take more than several minutes (depending on the complexity of the modification).
+If the process is successful, the **Metadata Exists** field is selected automatically.
 
-Dla wersji wcześniejszych niż Dynamics NAV 2013 R2 Microsoft stosował nieudokumentowany sposób kompresji danych w polach typu BLOB, co uniemozliwia bezpośrednie pobranie metadanych. Aby umożliwić pobranie metadanych w tym przypadku należy:
+### Download metadata for Dynamics NAV 2009 to 2013 R2
 
-1. Pobrać codeunit umożliwiający eksport danych z wcześniejszych wersji systemu
+For versions earlier than Dynamics NAV 2013 R2, Microsoft used an undocumented way of compressing data in Blob fields, which makes it impossible to download metadata directly. To enable the download of metadata in this case:
 
-    * Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](/search-small.png), wprowadź **Application Metadata Set List**, a następnie kliknij powiązane łącze.
-    * Na stronie Application Metadata Set List uruchom akcję **Get Export CU for NAV 2009**.
-    
-2. Dostosować pobrany Codeunit 90010 Export Objects Metadata do posiadanej wersji systemu Dynamics NAV, zaimportować oraz skompilować. Codeunit pozwala na eksport metadanych do pliku w formacie umożliwiającym wczytanie do aplikacji Data Migration Tool.
+1. Download the codeunit that allows you to export data from earlier versions of the system.
 
-3. Uruchomić zaimportowany codeunit Export Objects Metadata oraz zapisać plik wynikowy zawierający metadane.
+    - Choose the ![ ](search-small.png "Tell me what you want to do")  icon, enter **Application Metadata Set List**, and then choose the related link.
+    - On the **Application Metadata Set List** page, run the **Get Export CU for NAV 2009** action.
 
-4. Wczytać plik metadanych do aplikacji Data Migration Tool
+2. Adjust the downloaded *Codeunit 90010 Export Objects Metadata* to your version of Dynamics NAV, then import it and compile. Use this codeunit to export the metadata to a file format that allows you to load it into Data Migration Tool.
 
-    * Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](/search-small.png), wprowadź **Application Metadata Set List**, a następnie kliknij powiązane łącze.
-    * Na stronie Application Metadata Set List utwórz nowy rekord, uzupełnij pola:
-        * Code - kod metadanych
-        * Description - opis metadanych
-    * Uruchom akcję **Import Metadata Set**.
-    * Wybierz plik wyeksportowany w kroku 3 i zaimportuj.
+3. Run the imported *Export Objects Metadata* codeunit and save the metadata file that is created.
 
-5. Następnie aby pobrać wczytane metadane do struktury aplikacji Data Migration Tool:
+4. Upload the metadata file into Data Migration Tool.
 
-    * Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](/search-small.png), wprowadź **SQL Databases**, a następnie kliknij powiązane łącze.
-    * Na stronie Application Metadata Set List wybierz bazę dla której chcesz pobrać metadane.
-    * Rozwiń listę w polu **Use Metadata Set Code** i wybierz kod metadanych utworzony w kroku 4.
-    * Wybierz akcję **Get Metadata** aby zaimportować dane.
+    * Choose the ![ ](search-small.png "Tell me what you want to do") icon, enter **Application Metadata Set List**, and then choose the related link.
+    * On the **Application Metadata Set List** page, create a new record and fill in the fields:
+        **Code** - Specifies the code of metadata.
+        **Description** - Specifies the description of metadata.
+    * Run the **Import Metadata Set** action.
+    * Select the file you exported in step 3 and import it.
 
-# Zestaw danych migracji
+5. Get the loaded metadata into the Data Migration Tool structure:
 
-Zestaw danych migracji reprezentuje zbór danych, które będą migrowane z bazy źródłowej do docelowej. Zestaw zawiera listę tabel źródłowych i docelowych oraz definicję pól źródłowych i docelowych. Utworzenie poprawnego zestawu danych migracji jest kluczowe dla zapewnienia poprawności procesu migracji.
+    * Choose the ![ ](search-small.png "Tell me what you want to do") icon, enter **SQL Databases**, and then choose the related link.
+    * On the **Application Metadata Set List** page, select the database for which you want to retrieve metadata.
+    * Expand the list in the **Use Metadata Set Code** field and select the metadata code you created in step 4.
+    * Choose the **Get Metadata** action to import the data.
 
-## Tworzenie zestawu danych migracji
+## Migration dataset
 
-Aby utworzyć lub zmodyfikować zestaw danych migracji:
+A migration dataset represents the collection of data that will be migrated from the source database to the target database. The set contains a list of source and target tables and a definition of source and target fields. Creating the correct migration dataset is critical to ensuring the migration process is correct.
 
-1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](/search-small.png), wprowadź **Migration Datasets**, a następnie kliknij powiązane łącze.
-2. Na stronie Migration Datasets utwórz nowy zestaw danych migracji lub zmodyfikuj istniejący.
-3. Wprowadź odpowiednie wartości w sekcji **General** oraz **Migration Dataset Tables**
+### Create a migration dataset
 
-Poniżej znajduje się szczegółowy opis poszczególnych sekcji kartoteki **Migration Dataset Card**
+To create or modify a migration dataset:
 
-Sekcja **General** zawiera następujące pola:
+1. Choose the ![ ](search-small.png "Tell me what you want to do") icon, enter **Migration Datasets**, and then select the related link.
+2. On the **Migration Datasets** page, create a new migration dataset or modify an existing one.
+3. Enter the appropriate values in the **General** and **Migration Dataset Tables** sections.
 
-- **Code** - określa kod zestawu danych migracji
-- **Source SQL Database Code** - określa kod źródłowej bazy danych (Dynamics NAV).
-- **Target SQL Database Code** - określa kod docelowej bazy danych (Business Central).
-- **Description/Notes** - określa dowolny opis zestawu danych migracji.
-- **Released** - określa czy zestaw danych migracji został zwolniony i może być użyty w dalszym etapie procesu migracji.
+The following sections contain a detailed description of each section of the **Migration Dataset Card**.
 
+The **General** section contains the following fields:
 
-Sekcja **Migration Dataset Tables** zawiera szczegółowe ustawienia dotyczące migrowanych tabel oraz pól. 
+- **Code** - Specifies the migration dataset code.
+- **Source SQL Database Code** - Specifies the code of the source database (Dynamics NAV).
+- **Target SQL Database Code** - Specifies the code for the target database (Business Central).
+- **Description/Notes** - Specifies a description of the migration dataset.
+- **Released** - Specifies whether the migration dataset has been released and can be used in the following steps of the migration process.
 
-- **Source Table Name** - określa nazwę tabeli źródłowej
-- **Target Table Name** - określa nazwę tabeli docelowej
-- **Description/Notes** - określa dowolny opis umożliwiający dodanie komentarza przez użytkownika uzupełniającego dane.
-- **Skip In Mapping** - określa, czy dana tabela będzie pominięta w procesie migracji
-- **Number Of Errors** - określa ilość błędów walidacji poprawności mapowania
-- **Number of Warnings** - określa ilość ostrzeżeń walidacji poprawności mapowania.
+The **Migration Dataset Tables** section contains detailed setup for migrated tables and fields.
 
-### Uzupełnienie tabel zestawu migracji
+- **Source Table Name** - Specifies the name of the source table.
+- **Target Table Name** - Specifies the name of the target table.
+- **Description/Notes** - Specifies any description that the user enters as a comment supplementing the data.
+- **Skip In Mapping** - Specifies whether a selected table will be excluded in the migration process.
+- **Number Of Errors** - Specifies the number of errors in mapping validation.
+- **Number of Warnings** - Specifies the number of warnings in  mapping validation.
 
-Tabele zestawu danych migracji można uzupełnić automatycznie lub manualnie.
+#### Completing the migration dataset tables
 
-#### Manualne uzupełnienie tabel zestawu migracji danych
+You can fill in the migration dataset tables automatically or manually.
 
-Aby uzupełnić manualnie listę tabel podlegających migracji w wybranym zestawie danych migracji w sekcji **Migration Dataset Tables** kartoteki **Migration Dataset Card**:
+##### Complete migration dataset tables manually
 
-1. Korzystając z przycisku asysty w polu **Source Table Name** wybierz nazwę tabeli źródłowej.
-2. Korzystając z przycisku asysty w polu **Target Table Name** wybierz nazwę tabeli docelowej.
+To manually complete the list of tables to be migrated in the selected migration dataset in the **Migration Dataset Tables** section of the **Migration Dataset Card** page:
 
-#### Automatyczne wstawianie uzupełnianie tabel zestawu migracji danych
+1. Use the AssistEdit button in the **Source Table Name** field to select the name of the source table.
+2. Use the AssistEdit button in the **Target Table Name** field to select the name of the target table.
 
-Aby uzupełnić automatycznie listę tabel podlegających migracji w wybranym zestawie danych migracji w sekcji **Migration Dataset Tables** kartoteki **Migration Dataset Card**:
+##### Auto-insert and complete migration dataset tables
 
-1. Na stronie **Migration Dataset Card** wybranego zestawu danych użyj akcji **Insert Tables**.
-2. Ustaw parametry:
-    - **Insert option** - określa, które tabele zostaną wstawione. Możliwe są następujące opcje: 
-        * All Tables - system uzupełni wszystkie tabele źródłowe, a następnie dopasuje tabele docelowe. 
-        * Tables contains data - system uzupełni tabele źródłowe, które zawierają dane (ale tylko te, które mają ustawiony parametr Data Per Company = Yes), a nastepnie dopasuje tabele docelowe.
-        * Common tables contains data - system uzupełni tabele źródłowe, które zawierają dane (ale tylko te, które mają ustawiony parametr Data Per Company = No), a nastepnie dopasuje tabele docelowe.
-    - **All companies** - jeżeli w poprzednim wyborze wybrano Tables contains data, pole określa, czy system ma wstawić tabele zawierające dane w którejkolwiek firmie.
-    - **Selected Company** - jeżeli w poprzednim wyborze nie zaznaczono All companies, należy określić, której firmy źródłowej system ma użyć w celu określenia, czy tabela zawiera dane. 
-3. Kliknij przycisk OK, aby rozpocząć automatyczne uzupełnienie tabel zestawu danych migracji.
+To autopopulate the list of tables to be migrated in the selected migration dataset in the **Migration Dataset Tables** section of the **Migration Dataset Card** page:
 
-### Mapowanie pól tabel zestawu migracji danych
+1. On the **Migration Dataset Card** page of the selected dataset, choose the **Insert Tables** action.
+2. Set up the following parameters:
+    - **Insert option** - Specifies which tables are to be inserted. The following options are possible:
+        * **All Tables** - The system will populate all source tables and then match the target tables.
+        * **Tables Contain Data** - The system will populate the source tables that contain data (but only those with the **Data Per Company** parameter set to **Yes**) and then match the target tables.
+        * **Common Tables Contain Data** - The system will populate the source tables that contain data (but only those with the **Data Per Company** parameter set to **No**) and then match the target tables.
+    - **All Companies** - If the **Tables Contain Data** option is selected in the previous selection, the field specifies whether the system should insert tables containing data in any company.
+    - **Selected Company** - If the **All Companies** option is not selected in the previous selection, specify which source company should be used by the system to determine whether the table contains data. 
+3. Choose the **OK** button to start autopopulating the migration dataset tables.
 
-Każda tabela zestawu migracji danych zawiera szczegółowe ustawienia dotyczące pola źródłowego oraz docelowego. W trakcie dodawania tabel do listy w sekcji **Migration Dataset Tables** system automatycznie uzupełnia pola źródłowe oraz docelowe dla danej tabeli. W przypadku, gdy wszystkie pola tabeli źródłowej oraz docelowej posiadają te same nazwy oraz typy danych system automatycznie dokona odpowiednich ustawień. Jednak w sytuacji, gdy nazwy pól się różnią, należy dokonać manualnego dopasowania.
-Aby sprawdzić listę pól:
+#### Mapping migration dataset table fields
 
-1. W sekcji **Migration Dataset Tables** wybierz wiersz zawierający uzupełnioną tabelę źródłową oraz docelową.
-2. Użyj akcji **Fields** aby przejść do strony **Migration Dataset Table Fields** zawierającej listę pól źródłowych i docelowych danej tabeli.
-3. Uzupełnij lub zmodyfikuj wartości pól.
+Each migration dataset table contains detailed settings for the source and target fields. When you add tables to a list in the **Migration Dataset Tables** section, the system automatically enters values in the source and target fields for a selected table. If all fields of the source and target tables have the same names and data types, the system will automatically apply the appropriate setup. However, if the field names are different, you will need to adjust the settings manually.
+To check the list of fields:
 
-- **Mapping Type** - określa typ mapowania. Możliwe są następujące wartości:
-    * Field to Field: wartość pola źródłowego zostanie przypisana do pola docelowego 
-    * Constant to field: umożliwia przypisanie dowolnej stałej wartości do pola docelowego np w sytuacji, gdy w tabeli docelowej zostało dodane nowe pole, do którego chcemy przypisać stałą wartość.
-- **Source Field Name** - określa nazwę pola źródłowego z tabeli źródłowej. Przycisk asysty pozwala wybrać nazwę pola z listy.
-- **Target Field Name** - określa nazwę pola docelowego w tabeli docelowej. Przycisk asysty pozwala wybrać nazwę pola z listy.
-- **No. of Target Field Proposals** - pole wyliczane automatycznie, określa ilość propozycji nazwy pola docelowego. W przypadku, gdy w tabeli docelowej nie istnieje pole o takiej samej nazwie, system próbuje odnaleźć nazwę pola docelowego na podstawie fragmentu nazwy źródłowej. Przykładowo gdy do tabeli źródłowej w procesie modyfikacji zostało dodane pole "Descirption 3", prawdopodobnie w tabeli docelowej dodano rozszerzenie tabeli, gdzie pole nazywa się "ITI Description 3" (dodany przedrostek rozszerzenia). W takim przypadku system automatycznie nie dopasuje pola docelowego (wartość będzie pusta) jednak wartość **No. of Target Field Proposals** nie będzie zerowa. Wystarczy kliknąć w niezerową wartość pola **No. of Target Field Proposals** i wybrać pole z listy propozycji. 
-- **Is Empty** - określa, czy w bazie źródłowej wartość pola źródłowego jest uzupełniona w którymkolwiek rekordzie. Informacja ta pomaga podjąć decyzję o migracji danego pola źródłowego w przypadku, gdy trudno jest określić pole docelowe, lub gdy pole tabeli zostało usunięte w bazie docelowej. Ze względu na wydajność aplikacji wartości w polu **Is Empty** nie są obliczane automatycznie. Użyj akcji **Get Empty Fields Count** aby obliczyć wartości. Po obliczeniu wartości kliknięcie na wartość pola Is Empty pozwala zobaczyć ilość pustych i uzupełnionych rekordów, co może być pomocne w podjęciu decyzji, gdy pole nie jest puste, ale jest uzupełnione np w kilku rekordach na kilka tysięcy.
-- **Number of Errors** - określa ilość błędów walidacji w danym mapowaniu.
-- **Number of Warnings** - określa ilość ostrzeżeń walidacji w danym mapowaniu.
-- **Comments** - pozwala na dodanie dowolnego komentarza do danego mapowania.
-- **Ignore Errors** - określa, czy błędy i ostrzeżenia będą ignorowane w danym polu. Zaznaczenie pola umożliwia świadome zignorowanie błędu lub ostrzeżenia.
-- **Skip in Mapping** - określa, czy dane pole ma zostac pominięte w procesie migracji.
+1. In the **Migration Dataset Tables** section, select the line where the source and target tables have been specified.
+2. Choose the **Fields** action to go to the **Migration Dataset Table Fields** table that contains the list of source and target fields for a selected table.
+3. Complete or modify the field values.
 
-#### Uzupełnienie mapowania opcji pól tabel migracji danych
+- **Mapping Type** - Specifies the type of mapping. The following values are possible:
+    * **Field to Field** - The value of the source field will be assigned to the target field. 
+    * **Constant to Field**- Any fixed value can be assigned to the target field, e.g. when a new field has been added in the target table, to which you want to assign a fixed value.
+- **Source Field Name** - Specifies the name of the source field from the source table. Use the AssistEdit button to select a field name in the list.
+- **Target Field Name** - Specifies the name of the target field in the target table. Use the AssistEdit button to select a field name in the list.
+- **No. of Target Field Proposals** - The field is calculated automatically and specifies the number of proposals for the target field names. If there is no field with the same name in the target table, the system attempts to find the name of the target field based on a part of the source name. For example, if the **Descirption 3** field was added to the source table during the modification process, it is likely that an extension of the table was added to the target table, where the field’s name is *ITI Description 3* (the extension prefix added). In this case, the system will not match the target field automatically (the value will be empty), but the value **No. of Target Field Proposals** will not be zero. Choose the non-zero value of the **No. of Target Field Proposals** field and select a field in the suggested field list.
+- **Is Empty** - Specifies whether the value of the source field is populated in any record in the source database. This information helps you decide whether to migrate a selected source field when the target field is difficult to determine, or if the table field has been deleted in the target database. To ensure good performance of the applictaion, the values in the **Is Empty** field are not calculated automatically. Choose the **Get Empty Fields Count** action to calculate the values. After the value is calculated, you can select the **Is Empty field** value to view the number of empty and completed records. This can be helpful in making a decision when the field is not empty, but for example, it is filled in a few out of several thousand records.
+- **Number of Errors** - Specifies the number of validation errors in a given mapping.
+- **Number of Warnings** - Specifies the number of validation warnings in a given mapping.
+- **Comments** - Specifies a comment you add to a given mapping.
+- **Ignore Errors** - Specifies whether errors and warnings will be ignored in the field. By selecting the field, you can deliberately ignore the error or warning.
+- **Skip in Mapping** - Specifies whether the field should be excluded in the migration process.
 
-Pola zawierające typ danych typu Option wymagają mapowania opcji źródłowych na docelowe. Wszystkie opcje źródłowe muszą być zmapowane na opcje docelowe. W przypadku, gdy nazwy opcji pola tabeli źródłowej i docelowej są takie same, system automatycznie dokonuje mapowania. Jednak w przypadku różnic, mapowanie musi zostać wykonane manualnie.
-Aby wyświetlić ustawienia mapowania opcji pola tabeli, na stronie **Migration Dataset Table FIelds**, wybierz pole zawierające typ danych Option a następnie użyj akcji **Options Mapping**.
+##### Completing the mapping options of data migration table fields
 
-Akcja uruchamia stronę **Migration Dataset Table Field Options** zawierającą ustawienia mapowania opcji:
+Fields that contain the **Option** data type require that the source options be mapped to the target options. All source options must be mapped to target options. If the field option names of the source and target table are the same, the system automatically performs the mapping. However, in the case of differences, the mapping must be done manually.
+To view the mapping setup for table field options, on the **Migration Dataset Table FIelds** page, select the field that contains the **Option** data type, and then choose the **Options Mapping** action.
 
-- **Source Option ID** - określa identyfikator opcji pola źródłowego. Przycisk asysty pozwala wybrać identyfikator opcji z listy.
-- **Source Option Name** - określa nazwę opcji pola źródłowego. Wartość jest uzupełniana automatycznie na podstawie identyfikatora.
-- **Target Option ID** - określa identyfikator opcji pola docelowego. Przycisk asysty pozwala wybrać identyfikator opcji z listy.
-- **Target Option Name** - określa nazwę opcji pola docelowego. . Wartość jest uzupełniana automatycznie na podstawie identyfikatora.
+The action opens the **Migration Dataset Table Field Options** page that contains the option mapping settings:
 
-#### Dodatkowe pola docelowe
+- **Source Option ID** - Specifies the option identifier of the source field. Use the AssistEdit button to select an option ID from the list.
+- **Source Option Name** - Specifies the name of the source field option. The value is auto-populated based on the identifier.
+- **Target Option ID** - Specifies the option ID of the target field. Use the AssistEdit button to select an option ID from the list.
+- **Target Option Name** - Specifies the name of the target field option. The value is auto-populated based on the identifier.
 
-Jedno pole tabeli źródłowej domyślnie jest mapowane na jedno pole tabeli docelowej. Jednak w specyficznych przypadkach może istnieć potrzeba przeniesienia wartości pola tabeli źródłowej do wielu pól tabeli docelowej. W takim przypadku:
+##### Additional target fields
 
-1. Na stronie **Migration Dataset Table Fields** wybierz akcję **Additional Target Fields**
-2. Korzystając z przycisku asysty wybierz pola docelowe, do które chcesz zmapować.
+By default, one source table field is mapped to one target table field. However, in specific cases, you may want to move the value of the source table field to multiple target table fields. In this case:
 
-# Zapisywanie i używanie zapisanych mapowań
+1. On the **Migration Dataset Table Fields** page, choose the **Additional Target Fields** action.
+2. Use the AssistEdit button to select the target fields you want to map to.
 
-Aplikacja Data Migration Tool umożliwia tworzenie, eksport oraz import przygotowanych mapowań. Funkcjonalność można wykorzystać w celu przyspieszenia tworzenia ustawień zestawu migracji danych poprzez nałożenie na przygotowane tabele oraz pola typowego mapowania specyficznego dla wspólnej w wielu organizacjach aplikacji.
+## Saving and using saved mappings
 
-## Tworzenie mappingu
+With Data Migration Tool, you can create mappings and export and import prepared mappings. This functionality speeds up the creation of migration dataset setup by applying a typical mapping that is specific to the application used in many organizations to prepared tables and fields.
 
-Nowy mapping można utworzyć na kilka sposobów.
+### Creating a mapping
 
-### Manualne tworzenie mappingu
+There are several ways to create a new mapping.
 
-Mapping można utworzyć całkowicie manualnie. 
+#### Creating a mapping manually
 
-1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](/search-small.png), wprowadź **Mappings**, a następnie kliknij powiązane łącze.
-2. Na stronie Mappings utwórz nowy mapping, uzupełnij pola:
+The mapping can be created entirely manually.
 
-- **Code** - określa kod mappingu.
-- **Opis** - określa opis mappingu.
+1. Choose the ![ ](search-small.png "Tell me what you want to do")  icon, enter **Mappings**, and then choose the related link.
+2. To create a new mapping, fill in the following fields on the **Mappings** page:
 
-3. Wybierz akcję **Tables** aby zdefiniować tabele źródłowe oraz docelowe. Uzupełnij pola:
+- **Code** - Specifies the mapping code.
+- **Description** - Specifies the description of the mapping.
 
-- **Source Table Name** - nazwa tabeli źródłowej.
-- **Target Table Name** - nazwa tabeli docelowej.
+3. Choose the **Tables** action to define the source and target tables. Fill in the fields:
 
-4. Jeżeli chcesz zdefiniować również mapowanie pól, wybierz akcję **Fields** oraz uzupełnij pola:
+- **Source Table Name** - Specifies the name of the source table.
+- **Target Table Name** - Specifies the name of the target table.
 
-- **Source Field Name** - nazwa pola źródłowego tabeli źródłowej.
-- **Target Field Name** - nazwa pola docelowego tabeli docelowej.
+4. To define field mappings, choose the **Fields** action and fill in the fields:
 
-5. Dla pól o typie Opcja, wybierz akcję **Field Options** oraz uzupełnij pola:
+- **Source Field Name** - Specifies the name of the source field of the source table.
+- **Target Field Name** - Specifies the target field name of the target table.
 
-- **Source Field Option** - identyfikator opcji źródłowej.
-- **Target Field Option** - identyfikator opcji docelowej.
+5. For fields with the **Option** type, choose the **Field Options** action and fill in the fields:
 
-### Tworzenie mappingu z zestawu danych migracji
+- **Source Field Option** - Specifies the identifier of the source option.
+- **Target Field Option** - Specifies the identifier of the target option.
 
-Zestaw danych migracji może być zapisany jako mapping oraz użyty w innym projekcie lub np np podczas migracji produkcyjnej na innym środowisku.
+#### Creating a mapping from a migration dataset
 
-1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](/search-small.png), wprowadź **Migration Datasets**, a następnie kliknij powiązane łącze.
-2. Na stronie Migration Datasets wybierz zestaw danych migracji dla którego chcesz zapisać mapping i wybierz akcję Edit
-3. Na stronie Migraton Dataset Card wybierz akcję Mapping/Create Mapping from Dataset.
-4. Wprowadź Kod oraz Opis dla nowego mappingu i wybierz przycisk OK.
+The migration dataset can be saved as a mapping and used in another project or, for example, during a production migration to another environment.
 
-System automatycznie utworzy mapping na podstawie zestawu migracji danych.
+1. Choose the ![ ](search-small.png "Tell me what you want to do") icon, enter **Migration Datasets**, and then select the related link.
+2. On the **Migration Datasets** page, select the migration dataset for which you want to save the mapping and choose the **Edit** action.
+3. On the **Migraton Dataset Card** page, choose the **Mapping/Create Mapping from Dataset** action.
+4. Enter the **Code** and **Description** values for the new mapping and select the **OK** button.
 
-### Eksportowanie i importowanie mappingu z pliku
+The system will automatically create a mapping based on the data migration set.
 
-Utworzony mapping można wyeksportować do pliku, a następnie importować w innym projekcie lub np podczas migracji produkcyjnej.
+#### Exporting and importing a mapping from a file
 
-#### Eksportowanie
+The created mapping can be exported to a file and then imported into another project or e.g. during a production migration.
 
-1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](/search-small.png), wprowadź **Mappings**, a następnie kliknij powiązane łącze.
-2. Na stronie Mappings wybierz mapping, który chcesz wyeksportować do pliku.
-3. Następnie wybierz akcję Export Mapping.
+##### Exporting a mapping
 
-Plik mappingu zostanie zapisany w domyślnej lokalizacji dla pobranych plików przeglądarki internetowej.
+1. Choose the ![ ](search-small.png "Tell me what you want to do") icon, enter **Mappings**, and then choose the related link.
+2. On the **Mappings** page, select the mapping you want to export to a file.
+3. Then choose the **Export Mapping** action.
 
-#### Importowanie
+The mapping file will be saved in the location where files downloaded from your web browser are stored by default.
 
-1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](/search-small.png), wprowadź **Mappings**, a następnie kliknij powiązane łącze.
-2. Na stronie Mappings utwórz nowy mapping, uzupełnij pola:
+##### Importing a mapping
 
-- **Code** - określa kod mappingu.
-- **Opis** - określa opis mappingu.
+1. Choose the ![ ](search-small.png "Tell me what you want to do") icon, enter **Mappings**, and then choose the related link.
+2. On the **Mappings** page, create a new mapping and fill in the fields:
 
-3. Następnie wybierz akcję Import Mapping.
-4. Wybierz plik zawierający wyeksportowany mapping.
+- **Code** - Specifies the mapping code.
+- **Description** - Specifies the description of the mapping.
 
-Plik mappingu zostanie wczytany do nowo utworzonego mappingu.
+3. Choose the **Import Mapping** action.
+4. Select the file that contains the exported mapping.
 
-## Używanie mappingu
+The mapping file is loaded into the newly created mapping.
 
-Wykorzystanie mappingu możliwe jest na dwa sposoby. 
+### Using a mapping
 
+The mapping can be used in two ways
 
-### Wstawianie tabel oraz ustawień mapowania pól do zestawu migracji danych.
+#### Inserting tables and field mapping setup into a migration dataset
 
-Aby wstawić tabele oraz ustawienia mapowania pól do nowego zestawu migracji danych:
+To insert tables and field mapping settings into a new migration dataset:
 
-1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](/search-small.png), wprowadź **Migration Datasets**, a następnie kliknij powiązane łącze.
-2. Na stronie Migration Datasets wybierz zestaw danych migracji do którego chcesz wstawić mapping i wybierz akcję Edit
-3. Na stronie Migraton Dataset Card wybierz akcję Mapping/Insert Mapping.
-4. Wybierz kod mappingu, który chcesz wstawić do wybranego zestawu migracji danych.
-5. Wybierz przycisk OK.
+1. Choose the ![ ](search-small.png "Tell me what you want to do") icon, enter **Migration Datasets**, and then select the related link.
+2. On the **Migration Datasets** page, select the migration dataset to which you want to insert the mapping and choose the **Edit** action.
+3. On the **Migraton Dataset Card** page, choose the **Mapping/Insert Mapping** action.
+4. Select the mapping code that you want to insert into the selected migration dataset.
+5. Select the **OK** button.
 
-Tabele oraz ustawienia mapowania pól zawarte w wybranym mappingu zostaną wstawione do wybranego zestawu migracji danych.
+Mapping tables and setup contained in the selected mapping are inserted into the selected migration dataset.
 
-### Uzupełnianie ustawień mapowania w istniejącym zestawie migracji danych
+#### Complete mapping setup in the existing migration dataset
 
-Zapisany mapping może określać ustawienia mapowania dla wybranej funkcjonalności lub aplikacji (np polska funkcjoalność lub funkcjonalność Kadry płace)
-Aby zautomatyzować proces mapowania abel oraz pól, na istniejące ustawienia zestawu migracji danych może zostać "nałożony" wybrany mapping. 
-W tym przypadku zostaną automatycznie uzupełnione ustawienia mapowania pól tabel w istniejącym zestawie danych migracji bez dodawania nowych tabel.
+The saved mapping can contain the mapping setup for the selected functionality or application (e.g. Polish Localization or HR & Payroll Manager).
 
-Aby uzupełnić istniejące ustawienia mapowania w zestawie migracji:
+To automate the process of table and field mapping, the selected mapping can be applied to the existing migration dataset setup. In this case, table field mapping setup will be completed automatically in the existing migration dataset without adding new tables.
 
-1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](/search-small.png), wprowadź **Migration Datasets**, a następnie kliknij powiązane łącze.
-2. Na stronie Migration Datasets wybierz zestaw danych migracji dla którego chcesz zastosować zapisany mapping i wybierz akcję Edit
-3. Na stronie Migraton Dataset Card wybierz akcję Mapping/Update Mapping.
-4. Wybierz kod mappingu, który chcesz zastosować do wybranego zestawu migracji danych.
-5. Wybierz przycisk OK.
+To complete the existing mapping in the migration dataset:
 
-# Zwolnienie zestawu danych migracji
+1. Choose the ![ ](search-small.png "Tell me what you want to do") icon, enter **Migration Datasets**, and then select the related link.
+2. On the **Migration Datasets** page, select the migration dataset to which you want to apply the saved mapping and choose the **Edit** action.
+3. On the **Migraton Dataset Card** page, select the **Mapping/Update Mapping** action.
+4. Select the mapping code you want to apply to the selected migration dataset.
+5. Select the **OK** button.
 
-Przed wykorzystaniem ustawień zawartych w zestawie danych migracji do wygenerowania zapytań SQL, utworzony zestaw migracji należy zwolnić. W trakcie tego procesu system automatycznie weryfikuje poprawność ustawień zestawu danych migracji. Zwolnienie nie jest możliwe, jeżeli zestaw danych migracji zawiera błędy.
+## Releasing the migration dataset
 
-Aby zwolnić utworzony zestaw danych migracji:
+Before you can use the settings in the migration dataset to generate SQL queries, you must release the migration set that you created. During this process, the system automatically validates the migration dataset settings.It is not possible to release migration dataset if it contains errors.
 
-1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](/search-small.png), wprowadź **Migration Datasets**, a następnie kliknij powiązane łącze.
-2. Na stronie Migration Datasets wybierz zestaw danych migracji który chcesz zwolnić i wybierz akcję Edit
-3. Na stronie Migraton Dataset Card wybierz akcję Release.
-4. Jeżeli zestaw danych migracji nie zawiera błędów, pole Released zostanie zaznaczone.
+To release the migration dataset you created:
 
-W przypadku, gdy zestaw danych migracji zawiera błędy, należy rozwiązać wszystkie komunikaty błędów i ponownie spróbować zwolnić zestaw danych migracji.
-Ilość błędów oraz rozszerzeń widoczny jest w sekcji **Errors & Warnings** w polach:
+1. Choose the ![ ](search-small.png "Tell me what you want to do") icon, enter **Migration Datasets**, and then select the related link.
+2. On the **Migration Datasets** page, select the migration dataset you want to release and choose the **Edit** action.
+3. On the **Migraton Dataset Card** page, choose the **Release** action.
+4. If the migration dataset contains no errors, the **Released** field is selected.
 
-- **Number of Errors** - określa sumaryczną ilość błędów w zestawie danych migracji.
-- **Number of Warnings** - określa sumaryczną ilość ostrzeżeń w zestawie danych migracji.
-- **Number of Skipped Errors** - określa sumaryczną ilość błędów w zestawie danych migracji, dla których zaznaczono pole "Skip Errors" ustawieniach mapowania.
-- **Number of Skipped Warnings** - określa sumaryczną ilość ostrzeżeń w zestawie danych migracji, dla których zaznaczono pole "Skip Errors" ustawieniach mapowania.
+If the migration dataset contains errors, resolve all error messages and try to release the migration dataset again.
+The number of errors and extensions can be viewed in the **Errors & Warnings** section in the fields:
 
-Aby przejść do listy błędów lub ostrzeżeń należy kliknąć na liczbę reprezentującą daną wartość.
+- **Number of Errors** - Specifies the total number of errors in the migration dataset.
+- **Number of Warnings** - Specifies the total number of warnings in the migration dataset.
+- **Number of Skipped Errors** - Specifies the total number of errors in the migration dataset for which the **Skip Errors** field is checked in the mapping setup.
+- **Number of Skipped Warnings** - Specifies the total number of warnings in the migration dataset for which the **Skip Errors** field is checked in the mapping setup.
 
-Pola **Number of Errors** oraz **Number of Warnings** znajdują się również w sekcji **Migration Dataset Tables** oraz w ustawieniach pól oraz opcji pól.
+To access the list of errors or warnings, click the number representing the value.
 
-# Tworzenie migracji
+The **Number of Errors** and **Number of Warnings** fields are also displayed in the **Migration Dataset Tables** section and in the field and field options setup.
 
-Aplikacja Data Migration Tool umożliwia utworzenie ustawień umożliwiających uruchomienie migracji niezależnie dla każdej firmy źródłowej i docelowej.
+## Creating a migration
 
-Aby utworzyć nową migrację:
+With Data Migration Tool, you can create setup to run the migration independently for each source and target company.
 
-1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](/search-small.png), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
-2. Na stronie Migrations utwórz nową migrację lub zmodyfikuj istniejącą.
-3. Uzupełnij pola:
+To create a new migration:
 
-    * **Code** - określa kod migracji.
-    * **Executed** - określa, czy migracja została uruchomiona. Pole jes automatycznie uzupełniane przez system.
-    * **Generated Queries** - określa, czy dla danej migracji zostały wygenerowane zapytania SQL.
-    * **Migration Dataset Code** - określa, który zestaw danych migracji ma być zastosowany do wygenerowania zapytań SQL.
-    * **Source SQL Database COde** - określa kod źródłowej bazy danych SQL. Pole jest automatycznie uzupełniane na podstawie kodu zestawu danych migracji.
-    * **Source Company Name** - Określa nazwę firmy źródłowej, z której będą pobrane dane.
-    * **Target SQL Database Code** - określa kod docelowej bazy danych SQL. Pole jest automatycznie uzupełniane na podstawie kodu zestawu danych migracji.
-    * **Target Company Name** - Określa nazwę firmy źródłowej, do której będą wstawione dane.
-    * **Execute On** - określa na którym serwerze będą uruchomione zapytania SQL. Możliwe są do wyboru dwie opcje: Target - zapytania będą uruchamiane na serwerze docelowym, Source - zapytania będą uruchamiane na serwerze źródłowym. DOmyślnym wyborem jest opcja Target.
-    * **Do Not Use Transaction** - Określa, czy zapytania mają być wykonywane w transakcjach. W przypadku, gdy serwery SQL nie obsługują transakcji rozproszonych, pole należy zaznaczyć.
+1. Choose the ![ ](search-small.png "Tell me what you want to do") icon, enter **Migrations**, and then choose the related link.
+2. On the **Migrations** page, create a new migration or modify an existing one.
+3. Fill in the fields:
 
-# Generowanie i administracja zapytaniami SQL
+    * **Code** - Specifies the migration code.
+    * **Executed** - Specifies whether the migration has been run. The field is automatically completed by the system.
+    * **Generated Queries** - Specifies whether SQL queries have been generated for the migration.
+    * **Migration Dataset Code** - Specifies which migration dataset to use to generate SQL queries.
+    * **Source SQL Database Code** - Specifies the source SQL database code. The field is auto-populated based on the migration dataset code.
+    * **Source Company Name** - Specifies the name of the source company from which the data will be retrieved.
+    * **Target SQL Database Code** - Specifies the code of the target SQL database. The field is auto-populated based on the migration dataset code.
+    * **Target Company Name** - Specifies the name of the source company to which the data will be inserted.
+    * **Execute on** - Specifies on which server SQL queries will be run. There are two options to choose from: **Target** - Queries will run on the target server, **Source** - Queries will run on the source server. The **Target** option is selected by default.
+    * **Do Not Use Transaction** - Specifies whether queries will be executed in transactions. If SQL servers do not support distributed transactions, the field must be selected.
 
-Przed uruchomieniem procesu migracji należy wygenerować zapytania SQL.
+## Generating and administering SQL queries
 
-1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](/search-small.png), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
-2. Na stronie Migrations wybierz migrację, dla której chcesz wygenerować zapytania SQL.
-3. Wybierz akcję **Generate Queries** aby wygenerować zapytania SQL.
+Before you can start the migration process, you need to generate SQL queries.
 
-System rozpocznie generowanie zapytań SQL. Jeżeli proces zakończy się powodzeniem, pole **Generated Queries** zostanie zaznaczone automatycznie.
+1. Choose the ![ ](search-small.png "Tell me what you want to do") icon, enter **Migrations**, and then choose the related link.
+2. On the **Migrations** page, select the migration for which you want to generate SQL queries.
+3. Choose the **Generate Queries** action to generate SQL queries.
 
-## Wygenerowane zapytania SQL
+The system will start generating SQL queries. If the process is successful, the **Generated Queries** field will be selected automatically.
 
-Aby sprawdzić jakie zapytania SQL zostały wygenerowane:
+### Generated SQL queries
 
-1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](/search-small.png), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
-2. Na stronie Migrations wybierz migrację, dla której pole **Generated Queries** jest zaznaczone.
-3. Wybierz akcję **Related/Queries**
-4. Strona **Migration SQL Queries zawiera nieedytowalne pola:
+To check which SQL queries were generated:
 
-    * **Query No** - zawiera numer wygenerowanego zapytania SQL dla danej migracji.
-    * **Description** - zawiera automatycznie wygenerowany opis zapytania Nazwa tabeli źródłowej -> Nazwa tabeli docelowej.
-    * **Executed** - określa, czy zapytanie zostało uruchomione.
-    * **Modified** - określa, czy zapytanie zostało zmodyfikowane manualnie.
-    * **Running In Bacground Session** - określa, czy zapytanie jest aktualnie uruchomione w sesji zdalnej.
+1. Choose the ![ ](search-small.png "Tell me what you want to do") icon, enter **Migrations**, and then choose the related link.
+2. On the **Migrations** page, select the migration for which the **Generated Queries** field is selected.
+3. Choose the **Related/Queries** action.
+4. The **Migration SQL Queries** page contains non-editable fields:
 
-## Podgląd wygenerowanych zapytań SQL
+    * **Query No** - Specifies the number of the generated SQL query for the migration.
+    * **Description** - Specifies an automatically generated query description Source Table Name -> Target Table Name.
+    * **Executed** - Specifies whether the query was run.
+    * **Modified** - Specifies whether the query has been manually modified.
+    * **Running in Bacground Session** - Specifies whether the query is currently running in the remote session.
 
-Aplikacja Data Migration Tool generuje dwa rodzaje zapytań SQL.
-- Zapytanie SQL linkujące serwery.
-- Zapytania odpowiadające za transfer danych.
-W momencie uruchomienia migracji najpierw wykonywane jest zapytanie linkujące serwery, a następnie jedno lub więcej zapytań odpowiadających za transfer danych.
+### Preview of generated SQL queries
 
-### Zapytanie SQL linkujące serwery.
+Data Migration Tool generates two types of SQL queries:
+- SQL linked server queries,
+- data transfer queries.
 
-Aby edytować lub podejrzeć zapytanie SQL linkujące serwery:
+When the migration is triggered, the linked server query is executed first, followed by one or more data transfer queries.
 
-1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](/search-small.png), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
-2. Na stronie Migrations wybierz migrację, dla której pole **Generated Queries** jest zaznaczone.
-3. Wybierz akcję **Related/Edit Linked Server Query** aby przejść do podglądu i edycji zapytania 
+#### SQL linked server queries
 
-Strona Edit Linked Server Query pozwala na wprowadzenie modyfikacji wyświetlonego zapytania.
-Aby zapisać wprowadzone zmiany użyj akcji **Save**.
+To edit or preview a SQL linked server query:
 
-### Zapytania odpowiadające za transfer danych.
+1. Choose the ![ ](search-small.png "Tell me what you want to do") icon, enter **Migrations**, and then choose the related link.
+2. On the **Migrations** page, select the migration for which the **Generated Queries** field is selected.
+3. Choose the **Related/Edit Linked Server Query** action to preview and edit a query. 
 
-Aby edytować lub podejrzeć zapytanie SQL odpowiadające za transfer danych:
+On the Edit Linked Server Query page you can make modifications to the displayed query.
+To save your changes, choose the **Save** action.
 
-1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](/search-small.png), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
-2. Na stronie Migrations wybierz migrację, dla której pole **Generated Queries** jest zaznaczone.
-3. Wybierz akcję **Related/Queries**.
-4. Wybierz zapytanie, które chcesz podejrzeć lub edytować.
-5. Wybierz akcję **Edit Query Text** aby przejść do podglądu i edycji zapytania.
+#### Data transfer queries
 
-Strona Edit SQL Query pozwala na wprowadzenie modyfikacji wyświetlonego zapytania.
-Aby zapisać wprowadzone zmiany użyj akcji **Save**.
+To edit or preview the SQL query responsible for data transfer:
 
-## Pobieranie wygenerowanych zapytań SQL.
+1. Choose the ![ ](search-small.png "Tell me what you want to do") icon, enter **Migrations**, and then choose the related link.
+2. On the **Migrations** page, select the migration for which the **Generated Queries** field is selected.
+3. Choose the **Related/Queries** action.
+4. Select the query you want to preview or edit.
+5. Choose the **Edit Query Text** action to preview and edit the query.
 
-Aplikacja Data Migration Tool pozwala na uruchomienie wygenerowanych zapytań SQL. Jednak z różnych względów może zaistnieć potrzeba pobrania zapytań w pliku tekstowym.
+The **Edit SQL Query** page allows you to make modifications to the displayed query.
+To save your changes, choose the **Save** action.
 
-### Pobieranie zapytań SQL.
+### Downloading the generated SQL queries
 
-1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](/search-small.png), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
-2. Na stronie Migrations wybierz migrację, dla której pole **Generated Queries** jest zaznaczone.
-3. Wybierz akcję **Related/Queries**.
-4. Zaznacz jedno lub więcej zapytań, które chcesz pobrać.
-5. Wybierz akcję **Download Query Text** aby pobrać treść zapytań do pliku tekstowego.
+With Data Migration Tool you can run generated SQL queries. However, for various reasons, you may need to download the queries in a text file.
+
+#### Downloading SQL queries
+
+1. Choose the ![ ](search-small.png "Tell me what you want to do") icon, enter **Migrations**, and then choose the related link.
+2. On the **Migrations** page, select the migration for which the **Generated Queries** field is selected.
+3. Choose the **Related/Queries** action.
+4. Select one or more queries that you want to download.
+5. Choose the **Download Query Text** action to download the content of the queries to a text file.
 
 > [!CAUTION]
-> Pobrane zapytania odpowiadające za transfer danych zawiera doklejoną treść zapytania linkującego serwery na początku pliku.
+> Data transfer queries you download contain the content of the linked server query at the beginning of the file.
 
-# Uruchomienie i monitorowaie migracji
+## Running and monitoring migration
 
-Aplikacja Data Migration Tool umożliwia uruchomienie oraz monitoring wykonywania wygenerowanych zapytań SQL.
+With Data Migration Tool you can run and monitor the execution of generated SQL queries.
 
 > [!CAUTION]
-> Uruchomienie migracji usuwa wszystkie istniejące dane z migrowanych tabel w bazie docelowej.
+> Running the migration deletes all existing data from the migrated tables in the target database.
 
-## Uruchomienie migracji danych
+#### Running data migration
 
-Aby uruchomić sekwencyjnie wszystkie wygenerowane zapytania dla wybranej migracji:
+To run all generated queries sequentially for the selected migration:
 
-1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](/search-small.png), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
-2. Na stronie Migrations wybierz migrację, którą chcesz uruchomić, dla której pole **Generated Queries** jest zaznaczone.
-3. Wybierz akcję **Execute In Background**
-4. System rozpocznie sekwencyjne uruchamianie zapytań w sesji w tle.
+1. Choose the ![ ](search-small.png "Tell me what you want to do") icon, enter **Migrations**, and then choose the related link.
+2. On the **Migrations** page, select the migration you want to run for which the **Generated Queries** field is selected.
+3. Choose the **Execute In Background** action.
+4. The system will start running queries sequentially in a background session.
 
-## Uruchomienie pojedynczego zapytania
+### Running a single query
 
-Aby uruchomić pojedyncze wygenerowane zapytanie dla wybranej migracji:
+To run a single generated query for a selected migration:
 
-1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](/search-small.png), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
-2. Na stronie Migrations wybierz migrację, której zapytanie chcesz uruchomić, dla której pole **Generated Queries** jest zaznaczone.
-4. Wybierz akcję **Related/Queries** aby przejść do listy wygenerowanych zapytań SQL.
-5. Na stronie **Migration SQL Queries** Wybierz zapytanie, które chcesz uruchomić 
-5. Wybierz akcję **Execute In Background**
-4. System uruchomi zapytanie w sesji w tle.
+1. Choose the ![ ](search-small.png "Tell me what you want to do") icon, enter **Migrations**, and then choose the related link.
+2. On the **Migrations** page, select the migration for which the query should be run and for which the **Generated Queries** field is selected.
+4. Choose the **Related/Queries** action to go to the list of generated SQL queries.
+5. On the **Migration SQL Queries** page select the query you want to run.
+5. Choose the **Execute In Background** action.
+4. The system will start runnnig the query in a background session.
 
-## Monitorowanie sesji działających w tle uruchamiających zapytania SQL.
+### Monitoring background sessions running SQL queries
 
-Aby monitorować status sesji działających w tle.
+To monitor the status of background sessions
 
-1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](/search-small.png), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
-2. Na stronie Migrations wybierz migrację, którą chcesz monitorować.
-3. Wybierz akcję **Related/Migration Background Sessions**
-4. Strona **Migr. Background Sessions** zawiera następujące pola:
+1. Choose the ![ ](search-small.png "Tell me what you want to do") icon, enter **Migrations**, and then choose the related link.
+2. On the **Migrations** page, select the migration that you want to monitor.
+3. Choose the **Related/Migration Background Sessions** action.
+4. The **Migr. Background Sessions** page contains the following fields:
 
-    - **Migration Code** - Określa kod migracji danych.
-    - **Query No** - Określa nr zapytania SQL
-    - **Session Unique ID** - Określa unikalny identyfikator sesji
-    - **Is Active** - określa, czy sesja jest aktywna
-    - **No Of Session Events** - określa ilość zdarzeń (błędów) sesji
-    - **Last Comment** - określa ostatni komunikat błedu sesji. "Session event not found" oznacza, że sesja zakończyła się poprawnie.
+    - **Migration Code** - Specifies the data migration code.
+    - **Query No** - Specifies the number of the SQL query.
+    - **Session Unique ID** - Specifies a unique session ID.
+    - **Is Active** - Specifies whether the session is active.
+    - **No Of Session Events** - Specifies the number of events (errors) of the session.
+    - **Last Comment** - Specifies the last session error message. "Session event not found" means that the session ended correctly.
 
-## Log wykonanych zapytań SQL.
+### Log of executed SQL queries
 
-Aby monitorować status wykonanych zapytań.
+To monitor the status of executed queries
 
-1. Wybierz ikonę !["Powiedz mi co  chcesz zrobić"](/search-small.png), wprowadź **Migrations**, a następnie kliknij powiązane łącze.
-2. Na stronie Migrations wybierz migrację, którą chcesz monitorować.
-3. Wybierz akcję **Related/Log Entries**
-4. Strona **Migration Log Entries** zawiera następujące pola:
+1. Choose the ![ ](search-small.png "Tell me what you want to do") icon, enter **Migrations**, and then choose the related link.
+2. On the **Migrations** page, select the migration that you want to monitor.
+3. Choose the **Related/Log Entries** action.
+4. The **Migration Log Entries** page contains the following fields:
 
-    - **Entry No** - Określa nr kolejny zapisu.
-    - **Error Description** - Określa opis błedu, który wystąpił w trakcie wykonywania zapytania.
-    - **Executed by User ID** - Określa identyfikator użytkownika, który uruchomił zapytanie.
-    - **Starting Date Time** - Określa datę i godzinę uruchomienia zapytania.
-    - **Ending Date Time** - Określa datę i godzinę zakończenia wykonywania zapytania.
-    - **Migration Code** - Określa kod migracji danych.
-    - **Query No** - Określa nr zapytania SQL.
-    - **Query Description** - Określa opis zapytania SQL (Nazwa tabeli źródłowej -> nazwa tabeli docelowej)
-
+    - **Entry No** - Specifies the sequence number of the record.
+    - **Error Description** - Specifies a description of the error that occurred during the execution of the query.
+    - **Executed by User ID** - Specifies the identifier of the user who ran the query.
+    - **Starting Date Time** - Specifies the date and time of running the query.
+    - **Ending Date Time** - Specifies the date and time when query execution ends.
+    - **Migration Code** - Specifies the data migration code.
+    - **Query No** - Specifies the number of the SQL query.
+    - **Query Description** - Specifies the description of the SQL query (Source Table Name - > Target Table Name).
