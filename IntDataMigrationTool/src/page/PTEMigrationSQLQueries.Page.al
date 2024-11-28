@@ -83,6 +83,8 @@ page 99017 "PTE Migration SQL Queries"
                     PTEMigration: Record "PTE Migration";
                     PTERunLinkedServerQuery: Codeunit "PTE Run Linked Server Query";
                 begin
+                    if ExecuteMultipleQuery() then exit;
+
                     PTEMigration.Get(Rec."Migration Code");
                     PTERunLinkedServerQuery.Run(PTEMigration);
                     Rec.RunMigrationInBackground(false);
@@ -160,4 +162,45 @@ page 99017 "PTE Migration SQL Queries"
             }
         }
     }
+    local procedure ExecuteMultipleQuery(): Boolean
+    var
+        ActiveSession: Record "Active Session";
+        PTEMigrBackgroundSession: Record "PTE Migr. Background Session";
+        PTEMigrationSQLQuery: Record "PTE Migration SQL Query";
+        Timeout, SessionID : Integer;
+        SessionUniqueID: Guid;
+        SessionStartedMsg: Label 'Migration %1, Queries are running in Background\Session ID: %3\Session Unique ID:%4', Comment = '%1 = Migration Code,  %2= Session ID, %3 = UniqueSessionID';
+        SessionNotStartedErr: Label 'Failed to start background session';
+    begin
+        CurrPage.SetSelectionFilter(PTEMigrationSQLQuery);
+        if PTEMigrationSQLQuery.Count() <= 1 then
+            exit(false);
+
+        if not Confirm(RunConfirmarionMsg) then
+            exit;
+
+        Timeout := 1000 * 60 * 60 * 100; // 100 hours
+        if StartSession(SessionID, Codeunit::"PTE Run Multiple Queries", CompanyName, PTEMigrationSQLQuery, Timeout) then begin
+            ActiveSession.Get(Database.ServiceInstanceId(), SessionID);
+            SessionUniqueID := ActiveSession."Session Unique ID";
+            if NOT PTEMigrBackgroundSession.Get(Rec."Migration Code", Rec."Query No.") then begin
+                PTEMigrBackgroundSession.Init();
+                PTEMigrBackgroundSession."Migration Code" := Rec."Migration Code";
+                PTEMigrBackgroundSession."Query No." := Rec."Query No.";
+                PTEMigrBackgroundSession.Insert();
+            end;
+            PTEMigrBackgroundSession."Session ID" := SessionID;
+            PTEMigrBackgroundSession."Session Unique ID" := SessionUniqueID;
+            PTEMigrBackgroundSession.Modify();
+            Commit();
+            Message(SessionStartedMsg, Rec."Migration Code", Rec."Query No.", SessionID, SessionUniqueID);
+        end else
+            Error(SessionNotStartedErr);
+        exit(true);
+    end;
+
+    var
+        RunConfirmarionMsg: label 'This operation will delete data in target tables and migrate data from source tables to target tables. Do you want to continue ?';
+        MultipleQueryMsg: Label 'Multiple queries will be executed in background.';
+
 }
