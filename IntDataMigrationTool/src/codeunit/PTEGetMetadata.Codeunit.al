@@ -1061,7 +1061,7 @@ codeunit 99001 "PTE Get Metadata"
         char10 := 10;
         NewLine := FORMAT(char13) + FORMAT(char10);
         SQLQueryText := '';
-        SQLQueryText := SQLQueryText + 'SELECT' + NewLine;
+        SQLQueryText := SQLQueryText + 'SELECT TOP 1' + NewLine;
         SQLQueryText := SQLQueryText + '  CAST(  ' + NewLine;
         SQLQueryText := SQLQueryText + '     DECOMPRESS(CONVERT(varbinary(max),CONCAT(' + NewLine;
         SQLQueryText := SQLQueryText + '        CONVERT(varbinary(max), 0x1F8B0800000000000400),' + NewLine;

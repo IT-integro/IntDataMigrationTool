@@ -184,8 +184,12 @@ codeunit 99006 "PTE Export Import Mapping"
                             PTEMappingTableField."Source Table Name" := CopyStr(SourceTableName, 1, MaxStrLen(PTEMappingTableField."Source Table Name"));
                             PTEMappingTableField."Target Field Name" := CopyStr(TargetFieldName, 1, MaxStrLen(PTEMappingTableField."Target Field Name"));
                             PTEMappingTableField."Target Table Name" := CopyStr(TargetTableName, 1, MaxStrLen(PTEMappingTableField."Target Table Name"));
-                            Evaluate(PTEMappingTableField.Skip, SkipInMapping);
-                            Evaluate(PTEMappingTableField.Constant, Constant);
+
+                            if SkipInMapping <> '' then
+                                Evaluate(PTEMappingTableField.Skip, SkipInMapping);
+                            if Constant <> '' then
+                                Evaluate(PTEMappingTableField.Constant, Constant);
+
                             PTEMappingTableField.Insert();
 
                             if FieldObjectJSONManagement.GetStringPropertyValueByName('Additional Target Fields', AdditionalTargetTables) then

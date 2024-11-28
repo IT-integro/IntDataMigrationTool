@@ -26,6 +26,15 @@ codeunit 99005 "PTE Run Migration"
                 PTEMigrationSQLQuery.RunMigration(true);
             until PTEMigrationSQLQuery.Next() = 0;
         DialogProgress.Close();
+
+        PTEMigrationSQLQuery.Reset();
+        PTEMigrationSQLQuery.SetRange("Migration Code", PTEMigration.Code);
+        PTEMigrationSQLQuery.SetRange(Executed, false);
+        if PTEMigrationSQLQuery.IsEmpty() then begin
+            PTEMigration.Executed := true;
+            PTEMigration.Modify();
+        end;
+
         Message(FinalMsg);
     end;
 
