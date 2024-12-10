@@ -642,11 +642,6 @@ codeunit 99001 "PTE Get Metadata"
         ProgressTotal: Integer;
         CurrentProgress: Integer;
     begin
-        //raport
-        //<Name></Name>
-        //tabela
-        //<MetaTable Name="Currency" SourceAppId="437dbf0e-84ff-417a-965d-ed2bb9650972"
-
         //read parse and insert objects from metadata
         PTEAppObject.SetRange("SQL Database Code", PTESQLDatabase."Code");
         //filter all objects to find total number for count
