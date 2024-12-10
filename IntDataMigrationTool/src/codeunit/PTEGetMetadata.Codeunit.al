@@ -15,6 +15,9 @@ codeunit 99001 "PTE Get Metadata"
         GetInstalledApps(Rec);
         GetAppVersion(Rec);
         GetObjectsMetadata(Rec);
+        GetObjectNamesAndAppID(Rec);
+        if not CheckIfTableNamesAreUnique(Rec) then
+            exit;
         GetAllObjectDetail(Rec);
         FindSQLTableNames(Rec);
         GetCompanyNames(Rec);
@@ -30,8 +33,11 @@ codeunit 99001 "PTE Get Metadata"
         DownloadingInstalledAppsMsg: Label 'Downloading Installed Apps from %1 server. No Of Records: %2', Comment = '%1 = Server Code, %2 = No Of Records';
         DownloadingCompletedMsg: Label 'Downloading completed.';
         DownloadingMetaDataMsg: Label 'Downloading metadata from %1 server. No Of Objects: %2', Comment = '%1 = Server code, %2 = Number of objects';
+        DownloadingMetaDataMsg1: Label 'Downloading object names and related APP - server: %1. No Of Objects: %2', Comment = '%1 = Server code, %2 = Number of objects';
+        CheckingDuplicates: Label 'Checking duplicates in downloaded data - server: %1. No Of Objects: %2', Comment = '%1 = Server code, %2 = Number of objects';
         FindingSQLTableNamesMsg: Label 'Finding SQL table names for data from  %1 server. No Of Tables: %2', Comment = '%1 = Server code, %2 = Number of Tables';
         DownloadingCompanyNamesMsg: Label 'Downloading company names from  %1 server.', Comment = '%1 = Server code';
+        DuplicatedTableNamesMsg: Label 'Duplicate table names from different applications were detected. Data Migration Tool does not cover such cases. Select the tables you do not want to include in the migration process and add them to the skipped objects. Then download the metadata again.';
 
     local procedure GetDatabaseSchema(var PTESQLDatabase: Record "PTE SQL Database")
     var
@@ -499,6 +505,8 @@ codeunit 99001 "PTE Get Metadata"
             SQLQueryText2 := SQLQueryText2 + ',[Package ID]';
         if DatabaseFieldExists(PTESQLDatabase.Code, SourceTable, 'Runtime Package ID') then
             SQLQueryText2 := SQLQueryText2 + ',[Runtime Package ID]';
+        if DatabaseFieldExists(PTESQLDatabase.Code, SourceTable, 'Object Name') then
+            SQLQueryText2 := SQLQueryText2 + ',[Object Name]';
         SQLQueryText2 := SQLQueryText2 + ' FROM [' + SourceTable + ']';
         ConnectionString := PTESQLDatabase.GetDatabaseConnectionString();
 
@@ -551,6 +559,11 @@ codeunit 99001 "PTE Get Metadata"
                     Evaluate(PTEAppObject."Runtime Package ID", FORMAT(SQLReader.GetValue(4)));
                     PTEAppObject."Runtime Package ID" := DELCHR(PTEAppObject."Runtime Package ID", '=', '{}');
                 end;
+            //[Object Name]
+            if DatabaseFieldExists(PTESQLDatabase.Code, SourceTable, 'Object Name') then
+                if not SQLReader.IsDBNull(2) then
+                    Evaluate(PTEAppObject."Name", FORMAT(SQLReader.GetString(5)));
+
             if PTEAppObject."Package ID" <> '' then begin
                 if IsPackageInstalled(PTEAppObject."Package ID") then
                     if not PTEAppObject.Insert() then;
@@ -564,6 +577,92 @@ codeunit 99001 "PTE Get Metadata"
 
         DialogProgress.Close();
     end;
+
+    local procedure CheckIfTableNamesAreUnique(var PTESQLDatabase: Record "PTE SQL Database"): Boolean;
+    var
+        PTEAppObject1: Record "PTE App. Object";
+        PTEAppObject2: Record "PTE App. Object";
+        PTEAppSkippedObjects: Record "PTE App Skipped Objects";
+        PTEAppObjectsPage: Page "PTE App. Objects";
+        NumberOfRecords: Integer;
+        DialogProgress: Dialog;
+        ProgressTotal: Integer;
+        CurrentProgress: Integer;
+        TheSameNameQty: Integer;
+        SkippedQty: Integer;
+        HasDuplicatedNotSkipped: Boolean;
+    begin
+        PTEAppObject1.SetRange("SQL Database Code", PTESQLDatabase."Code");
+        PTEAppObject1.SetFilter("Type", '%1', PTEAppObject1."Type"::Table);
+        PTEAppObject2.SetRange("SQL Database Code", PTESQLDatabase."Code");
+        PTEAppObject2.SetFilter("Type", '%1', PTEAppObject1."Type"::Table);
+        PTEAppSkippedObjects.SetRange("SQL Database Code", PTESQLDatabase."Code");
+        PTEAppSkippedObjects.SetFilter("Type", '%1', PTEAppObject1."Type"::Table);
+        ProgressTotal := PTEAppObject1.count();
+        HasDuplicatedNotSkipped := false;
+        DialogProgress.Open(STRSUBSTNO(CheckingDuplicates, PTESQLDatabase."Code", ProgressTotal) + ': #1#####', CurrentProgress);
+        if PTEAppObject1.FindSet() then
+            repeat
+                PTEAppObject2.SetRange(Name, PTEAppObject1.Name);
+                PTEAppSkippedObjects.SetRange(Name, PTEAppObject1.Name);
+                TheSameNameQty := PTEAppObject2.Count();
+                SkippedQty := PTEAppSkippedObjects.Count();
+                if TheSameNameQty > 1 then begin
+                    PTEAppObject1."Duplicated Name" := true;
+                    PTEAppObject1.Modify();
+                End;
+                CurrentProgress := CurrentProgress + 1;
+                DialogProgress.Update();
+                if (TheSameNameQty - SkippedQty) > 1 then
+                    HasDuplicatedNotSkipped := true;
+            until PTEAppObject1.Next() = 0;
+        DialogProgress.Close();
+        PTEAppObject1.SetRange("Duplicated Name", true);
+        if HasDuplicatedNotSkipped then begin
+            PTEAppObject1.SetRange(Skipped);
+            PTEAppObjectsPage.SetTableView(PTEAppObject1);
+            PTEAppObjectsPage.Editable(true);
+            PTEAppObjectsPage.Run();
+            Message(DuplicatedTableNamesMsg);
+            exit(false);
+        end;
+        exit(true);
+    end;
+
+
+    local procedure GetObjectNamesAndAppID(var PTESQLDatabase: Record "PTE SQL Database")
+    var
+        PTEAppObject: Record "PTE App. Object";
+        PTEAppObjectTable: Record "PTE App. Object Table";
+        PTEAppObjectTableField: Record "PTE App. Object Table Field";
+        PTEAppObjectTblFieldOpt: Record "PTE App. Object Tbl.Field Opt.";
+        PTEAppObjectEnum: Record "PTE App. Object Enum";
+        PTEAppObjectEnumValue: Record "PTE App. Object Enum Value";
+        DialogProgress: Dialog;
+        ProgressTotal: Integer;
+        CurrentProgress: Integer;
+    begin
+        //raport
+        //<Name></Name>
+        //tabela
+        //<MetaTable Name="Currency" SourceAppId="437dbf0e-84ff-417a-965d-ed2bb9650972"
+
+        //read parse and insert objects from metadata
+        PTEAppObject.SetRange("SQL Database Code", PTESQLDatabase."Code");
+        //filter all objects to find total number for count
+        PTEAppObject.SetFilter("Type", '%1|%2|%3|%4', PTEAppObject."Type"::Table, PTEAppObject."Type"::"TableExtension", PTEAppObject."Type"::Enum, PTEAppObject."Type"::EnumExtension);
+        ProgressTotal := PTEAppObject.count();
+        DialogProgress.Open(STRSUBSTNO(DownloadingMetaDataMsg1, PTESQLDatabase."Code", ProgressTotal) + ': #1#####', CurrentProgress);
+        //get objects without table extensions
+        PTEAppObject.SetFilter("Type", '%1|%2|%3', PTEAppObject."Type"::Table, PTEAppObject."Type"::Enum, PTEAppObject."Type"::EnumExtension);
+        if PTEAppObject.FindSet() then
+            repeat
+                GetObjectNameAndAppID(PTEAppObject);
+                CurrentProgress := CurrentProgress + 1;
+                DialogProgress.Update();
+            until PTEAppObject.Next() = 0;
+    end;
+
 
     local procedure IsPackageInstalled(PackageID: text): Boolean
     var
@@ -601,6 +700,7 @@ codeunit 99001 "PTE Get Metadata"
 
         //read parse and insert objects from metadata
         PTEAppObject.SetRange("SQL Database Code", PTESQLDatabase."Code");
+        PTEAppObject.SetRange(Skipped, false);
         //filter all objects to find total number for count
         PTEAppObject.SetFilter("Type", '%1|%2|%3|%4', PTEAppObject."Type"::Table, PTEAppObject."Type"::"TableExtension", PTEAppObject."Type"::Enum, PTEAppObject."Type"::EnumExtension);
         ProgressTotal := PTEAppObject.count();
@@ -773,11 +873,78 @@ codeunit 99001 "PTE Get Metadata"
         XmlDocument.Load(StreamReader);
     end;
 
+
+    local procedure GetObjectNameAndAppID(var PTEAppObject: Record "PTE App. Object")
+    var
+        PTESQLDatabase: Record "PTE SQL Database";
+        PTEAppMetadataSetObject: Record "PTE App. Metadata Set Object";
+        PTESQLDatabaseInstalledApp: Record "PTE SQL Database Installed App";
+        ObjectMetadata: BigText;
+        OptionString: Text;
+        XmlDocument: DotNet DotNetXmlDocument;
+        XmlNodeReader: DotNet XmlNodeReader;
+
+
+    begin
+        PTESQLDatabase.GET(PTEAppObject."SQL Database Code");
+        if PTESQLDatabase."Use Metadata Set Code" <> '' then begin
+            PTEAppMetadataSetObject.Get(PTESQLDatabase."Use Metadata Set Code", PTEAppObject.ID, PTEAppObject.Type);
+            ObjectMetadata := PTEAppMetadataSetObject.GetMetadataText();
+        end else
+            ObjectMetadata := GetObjectMetadataXMLFromSQL(PTEAppObject);
+
+        GetXMLMetadata(ObjectMetadata, XmlDocument);
+        XmlNodeReader := XmlNodeReader.XmlNodeReader(XmlDocument);
+        while XmlNodeReader.Read() do
+            case PTEAppObject."Type" of
+                //table
+                //<MetaTable Name="Currency" SourceAppId="437dbf0e-84ff-417a-965d-ed2bb9650972"
+                PTEAppObject."Type"::Table:
+                    begin
+                        if XmlNodeReader.Name() = 'MetaTable' then begin
+                            PTEAppObject.Name := XmlNodeReader.GetAttribute('Name');
+                            PTEAppObject."Application ID" := UpperCase(XmlNodeReader.GetAttribute('SourceAppId'));
+                            if PTESQLDatabaseInstalledApp.Get(PTEAppObject."SQL Database Code", PTEAppObject."Application ID") then
+                                PTEAppObject."Application Name" := PTESQLDatabaseInstalledApp.Name;
+                            PTEAppObject.Modify();
+                        end;
+                    end;
+
+                //table extension
+                PTEAppObject."Type"::TableExtension:
+                    begin
+                        if XmlNodeReader.Name() = 'MetadataRuntimeDeltas' then begin
+                            PTEAppObject.Name := XmlNodeReader.GetAttribute('Name');
+                            PTEAppObject.Modify();
+                        end;
+                    end;
+                //Enum
+                PTEAppObject."Type"::Enum:
+                    begin
+                        if XmlNodeReader.Name() = 'Enum' then begin
+                            PTEAppObject.Name := XmlNodeReader.GetAttribute('Name');
+                            PTEAppObject.Modify();
+                        end;
+                    END;
+                //Enum Extension
+                PTEAppObject."Type"::EnumExtension:
+                    begin
+                        IF XmlNodeReader.Name() = 'Value' then begin
+                            PTEAppObject.Name := XmlNodeReader.GetAttribute('Name');
+                            PTEAppObject.Modify();
+                        end;
+                    end;
+            end;
+    end;
+
+
     local procedure GetObjectDetail(PTEAppObject: Record "PTE App. Object")
     var
         PTESQLDatabase: Record "PTE SQL Database";
         PTEAppObjectTable: Record "PTE App. Object Table";
+        PTEAppObjectTable2: Record "PTE App. Object Table";
         PTEAppObjectTableField: Record "PTE App. Object Table Field";
+        PTEAppObjectTableField2: Record "PTE App. Object Table Field";
         PTEAppObjectEnum: Record "PTE App. Object Enum";
         PTEAppObjectEnumValue: Record "PTE App. Object Enum Value";
         PTEAppObjectTblFieldOpt: Record "PTE App. Object Tbl.Field Opt.";
@@ -798,6 +965,7 @@ codeunit 99001 "PTE Get Metadata"
         KeyFieldNo: Integer;
         KeyFieldNoText: Text;
         KeyInserted: Boolean;
+
     begin
         PTESQLDatabase.GET(PTEAppObject."SQL Database Code");
         if PTESQLDatabase."Use Metadata Set Code" <> '' then begin
@@ -837,8 +1005,14 @@ codeunit 99001 "PTE Get Metadata"
                             if PTEAppObjectTable.ObsoleteState = 'No' then
                                 PTEAppObjectTable.ObsoleteState := '';
                             PTEAppObjectTable.ObsoleteReason := XmlNodeReader.GetAttribute('ObsoleteReason');
-                            if not PTEAppObjectTable.Insert() then
-                                PTEAppObjectTable.Modify();
+
+                            if not PTEAppObjectTable.Insert() then begin
+                                PTEAppObjectTable2.SetRange("SQL Database Code", PTEAppObject."SQL Database Code");
+                                PTEAppObjectTable2.SetRange(Name, PTEAppObjectTable.Name);
+                                PTEAppObjectTable2.SetFilter(ID, '<>%1', PTEAppObjectTable."ID");
+                                if PTEAppObjectTable2.IsEmpty then
+                                    PTEAppObjectTable.Modify();
+                            end;
                         END;
                         IF XmlNodeReader.Name() = 'Field' then begin
                             SQFieldName := XmlNodeReader.GetAttribute('Name');
@@ -885,10 +1059,18 @@ codeunit 99001 "PTE Get Metadata"
                                     PTEAppObjectTableField.Enabled := GetBoolean(XmlNodeReader.GetAttribute('Enabled'))
                                 else
                                     PTEAppObjectTableField.Enabled := true;
-                                if not PTEAppObjectTableField.Insert() then
-                                    PTEAppObjectTableField.Modify();
-                                if not PTEAppObjectTableField.INSERT() then
-                                    PTEAppObjectTableField.Modify();
+                                if not PTEAppObjectTableField.Insert() then begin
+                                    PTEAppObjectTableField2.SetRange("SQL Database Code", PTEAppObjectTableField."SQL Database Code");
+                                    PTEAppObjectTableField2.SetRange("Table Name", PTEAppObjectTableField."Table Name");
+                                    PTEAppObjectTableField2.SetRange(Name, PTEAppObjectTableField.Name);
+                                    PTEAppObjectTableField2.SetRange(FieldClass, PTEAppObjectTableField.FieldClass);
+                                    PTEAppObjectTableField2.SetFilter("Table ID", '<>%1', PTEAppObjectTableField2."Table ID");
+                                    PTEAppObjectTableField2.SetFilter(ID, '<>%1', PTEAppObjectTableField2.ID);
+                                    if PTEAppObjectTableField2.IsEmpty then
+                                        PTEAppObjectTableField.Modify();
+                                end;
+
+
                                 if XmlNodeReader.GetAttribute('Datatype') = 'Option' then begin
                                     OptionString := XmlNodeReader.GetAttribute('OptionString');
                                     NoOfOptions := StrLen(DelChr(OptionString, '=', DELCHR(OptionString, '=', ','))) + 1;
@@ -914,9 +1096,10 @@ codeunit 99001 "PTE Get Metadata"
                                 KeyFieldNoText := SelectStr(i, OptionString);
                                 KeyFieldNoText := DELCHR(KeyFieldNoText, '=', DELCHR(KeyFieldNoText, '=', '1234567890'));
                                 Evaluate(KeyFieldNo, KeyFieldNoText);
-                                PTEAppObjectTableField.GET(PTEAppObject."SQL Database Code", TableID, KeyFieldNo);
-                                PTEAppObjectTableField."Key" := true;
-                                PTEAppObjectTableField.Modify()
+                                if PTEAppObjectTableField.GET(PTEAppObject."SQL Database Code", TableID, KeyFieldNo) then begin
+                                    PTEAppObjectTableField."Key" := true;
+                                    PTEAppObjectTableField.Modify()
+                                end;
                             end;
                             KeyInserted := true;
                         end;
