@@ -128,6 +128,7 @@ table 99008 "PTE SQL Database"
         PTEAppObjectTableField: Record "PTE App. Object Table Field";
         PTEAppObjectTblFieldOpt: Record "PTE App. Object Tbl.Field Opt.";
         PTESQLDatabaseCompany: Record "PTE SQL Database Company";
+        PTEAppSkippedObjects: Record "PTE App Skipped Objects";
 
     begin
         if IsolatedStorage.Contains(Rec.Code) then
@@ -152,6 +153,8 @@ table 99008 "PTE SQL Database"
         PTEAppObjectTblFieldOpt.DeleteAll();
         PTESQLDatabaseCompany.SetRange("SQL Database Code", Code);
         PTESQLDatabaseCompany.DeleteAll();
+        PTEAppSkippedObjects.SetRange("SQL Database Code", Code);
+        PTEAppSkippedObjects.DeleteAll();
     end;
 }
 

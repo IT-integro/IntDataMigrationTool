@@ -1,8 +1,8 @@
-table 99012 "PTE App. Object"
+table 99034 "PTE App Skipped Objects"
 {
-    Caption = 'Application Object';
-    DrillDownPageID = "PTE App. Objects";
-    LookupPageID = "PTE App. Objects";
+    Caption = 'App. Skipped Objects';
+    DataClassification = ToBeClassified;
+
     fields
     {
         field(1; "SQL Database Code"; Code[20])
@@ -57,18 +57,6 @@ table 99012 "PTE App. Object"
             Caption = 'Application Name';
             DataClassification = ToBeClassified;
         }
-        field(51; "Duplicated Name"; Boolean)
-        {
-            Caption = 'Duplicated Name';
-            DataClassification = ToBeClassified;
-        }
-        field(52; "Skipped"; Boolean)
-        {
-            FieldClass = FlowField;
-            CalcFormula = Exist("PTE App Skipped Objects" where("SQL Database Code" = field("SQL Database Code"), "ID" = field("ID"), "Type" = field("Type"), "Source" = field("Source")));
-            Caption = 'Skipped';
-            Editable = false;
-        }
     }
 
     keys
@@ -78,36 +66,4 @@ table 99012 "PTE App. Object"
             Clustered = true;
         }
     }
-
-    fieldgroups
-    {
-    }
-
-    Procedure DownloadMetadata()
-    var
-        PTEGetMetadata: Codeunit "PTE Get Metadata";
-    begin
-        PTEGetMetadata.DownloadObject(Rec);
-    end;
-
-    Procedure AddToSkipped()
-    var
-        PTEAppSkippedObjects: Record "PTE App Skipped Objects";
-    begin
-        if not PTEAppSkippedObjects.Get(Rec."SQL Database Code", Rec."ID", Rec."Type", Rec."Source") then begin
-            PTEAppSkippedObjects.Init();
-            PTEAppSkippedObjects.TransferFields(Rec);
-            PTEAppSkippedObjects.Insert();
-        end;
-    end;
-
-    Procedure RemoveFromSkipped()
-    var
-        PTEAppSkippedObjects: Record "PTE App Skipped Objects";
-    begin
-        if PTEAppSkippedObjects.Get(Rec."SQL Database Code", Rec."ID", Rec."Type", Rec."Source") then begin
-            PTEAppSkippedObjects.Delete();
-        end;
-    end;
 }
-
