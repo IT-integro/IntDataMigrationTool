@@ -9,13 +9,13 @@ codeunit 99001 "PTE Get Metadata"
             if not Confirm(DBASchemaExistsConfMsg, FALSE, rec."Code") then
                 exit;
 
-        GetDBForbiddenChars(Rec);
-        GetDatabaseSchema(Rec);
-        GetSQLTablesNumberOfRows(Rec);
-        GetInstalledApps(Rec);
-        GetAppVersion(Rec);
-        GetObjectsMetadata(Rec);
-        GetObjectNamesAndAppID(Rec);
+        GetDBForbiddenChars(Rec);//
+        GetDatabaseSchema(Rec);//
+        GetSQLTablesNumberOfRows(Rec);//
+        GetInstalledApps(Rec);//
+        GetAppVersion(Rec);//
+        GetObjectsMetadata(Rec);//
+        GetObjectNamesAndAppID(Rec);//
         if not CheckIfTableNamesAreUnique(Rec) then
             exit;
         GetAllObjectDetail(Rec);
@@ -27,16 +27,21 @@ codeunit 99001 "PTE Get Metadata"
     end;
 
     var
-        DBASchemaExistsConfMsg: Label 'The metadata for the %1 server has already been downloaded. Do you want to delete existing data and download again?', Comment = '%1 = Server Code';
-        DownloadingDataMsg: Label 'Downloading tables and fields schema from %1 server. No Of Records: %2', Comment = '%1 = Server Code, %2 = No Of Records';
-        DownloadingAppObjMsg: Label 'Downloading Application Objects from %1 server. No Of Records: %2', Comment = '%1 = Server Code, %2 = No Of Records';
-        DownloadingInstalledAppsMsg: Label 'Downloading Installed Apps from %1 server. No Of Records: %2', Comment = '%1 = Server Code, %2 = No Of Records';
-        DownloadingCompletedMsg: Label 'Downloading completed.';
-        DownloadingMetaDataMsg: Label 'Downloading metadata from %1 server. No Of Objects: %2', Comment = '%1 = Server code, %2 = Number of objects';
-        DownloadingMetaDataMsg1: Label 'Downloading object names and related APP - server: %1. No Of Objects: %2', Comment = '%1 = Server code, %2 = Number of objects';
-        CheckingDuplicates: Label 'Checking duplicates in downloaded data - server: %1. No Of Objects: %2', Comment = '%1 = Server code, %2 = Number of objects';
-        FindingSQLTableNamesMsg: Label 'Finding SQL table names for data from  %1 server. No Of Tables: %2', Comment = '%1 = Server code, %2 = Number of Tables';
-        DownloadingCompanyNamesMsg: Label 'Downloading company names from  %1 server.', Comment = '%1 = Server code';
+        DBASchemaExistsConfMsg: Label 'The metadata for the %1 database has already been downloaded. Do you want to delete existing data and download again?', Comment = '%1 = Database Code';
+        DownloadingDataMsg: Label 'Processing - Step 1 of 7\Downloading tables and fields schema from %1 database.\No Of Records: %2', Comment = '%1 = Database Code, %2 = No Of Records';
+        DownloadingInstalledAppsMsg: Label 'Processing - Step 2 of 7\Downloading Installed Apps from %1 database.\No Of Records: %2', Comment = '%1 = Database Code, %2 = No Of Records';
+        DownloadingAppObjMsg: Label 'Processing - Step 3 of 7\Downloading Application Objects from %1 database.\No Of Records: %2', Comment = '%1 = Database Code, %2 = No Of Records';
+        DownloadingMetaDataMsg1: Label 'Processing - Step 4 of 7\Downloading object names and related APP - database: %1.\No Of Objects: %2', Comment = '%1 = Database code, %2 = Number of objects';
+        CheckingDuplicates: Label 'Processing - Step 5 of 7\Checking duplicates in downloaded data - database: %1.\No Of Objects: %2', Comment = '%1 = Database code, %2 = Number of objects';
+        DownloadingMetaDataMsg: Label 'Processing - Step 5 of 7\Downloading metadata from %1 database.\No Of Objects: %2', Comment = '%1 = Database code, %2 = Number of objects';
+        FindingSQLTableNamesMsg: Label 'Processing - Step 6 of 7\Finding SQL table names for data from  %1 database.\No Of Tables: %2', Comment = '%1 = Database code, %2 = Number of Tables';
+        DownloadingCompanyNamesMsg: Label 'Processing - Step 7 of 7\Downloading company names from  %1 database.', Comment = '%1 = Database code';
+        DownloadingCompletedMsg: Label 'Download completed.';
+
+
+
+
+
         DuplicatedTableNamesMsg: Label 'Duplicate table names from different applications were detected. Data Migration Tool does not cover such cases. Select the tables you do not want to include in the migration process and add them to the skipped objects. Then download the metadata again.';
 
     local procedure GetDatabaseSchema(var PTESQLDatabase: Record "PTE SQL Database")
@@ -495,18 +500,37 @@ codeunit 99001 "PTE Get Metadata"
         ProgressTotal: Integer;
         CurrentProgress: Integer;
         ConnectionString: Text;
+        FieldColumnNo: Dictionary of [Text, Integer];
+        ColumnNo: Integer;
     begin
         //Build SQL queries to run
         SQLQueryText := 'SELECT COUNT([Object ID]) FROM [' + SourceTable + ']';
         SQLQueryText2 := 'SELECT [Object Type],[Object ID]';
-        if DatabaseFieldExists(PTESQLDatabase.Code, SourceTable, 'Object Subtype') then
+
+        FieldColumnNo.Add('[Object Type]', 0);
+        FieldColumnNo.Add('[Object ID]', 1);
+        ColumnNo := 1;
+
+        if DatabaseFieldExists(PTESQLDatabase.Code, SourceTable, 'Object Subtype') then begin
             SQLQueryText2 := SQLQueryText2 + ',[Object Subtype]';
-        if DatabaseFieldExists(PTESQLDatabase.Code, SourceTable, 'Package ID') then
+            ColumnNo := ColumnNo + 1;
+            FieldColumnNo.Add('[Object Subtype]', ColumnNo);
+        end;
+        if DatabaseFieldExists(PTESQLDatabase.Code, SourceTable, 'Package ID') then begin
             SQLQueryText2 := SQLQueryText2 + ',[Package ID]';
-        if DatabaseFieldExists(PTESQLDatabase.Code, SourceTable, 'Runtime Package ID') then
+            ColumnNo := ColumnNo + 1;
+            FieldColumnNo.Add('[Package ID]', ColumnNo);
+        end;
+        if DatabaseFieldExists(PTESQLDatabase.Code, SourceTable, 'Runtime Package ID') then begin
             SQLQueryText2 := SQLQueryText2 + ',[Runtime Package ID]';
-        if DatabaseFieldExists(PTESQLDatabase.Code, SourceTable, 'Object Name') then
+            ColumnNo := ColumnNo + 1;
+            FieldColumnNo.Add('[Runtime Package ID]', ColumnNo);
+        end;
+        if DatabaseFieldExists(PTESQLDatabase.Code, SourceTable, 'Object Name') then begin
             SQLQueryText2 := SQLQueryText2 + ',[Object Name]';
+            ColumnNo := ColumnNo + 1;
+            FieldColumnNo.Add('[Object Name]', ColumnNo);
+        end;
         SQLQueryText2 := SQLQueryText2 + ' FROM [' + SourceTable + ']';
         ConnectionString := PTESQLDatabase.GetDatabaseConnectionString();
 
@@ -538,31 +562,31 @@ codeunit 99001 "PTE Get Metadata"
             PTEAppObject."SQL Database Code" := PTESQLDatabase."Code";
             PTEAppObject.Source := SourceTable;
             //[Object Type]
-            if not SQLReader.IsDBNull(0) then
-                Evaluate(PTEAppObject."Type", FORMAT(SQLReader.GetValue(0)));
+            if not SQLReader.IsDBNull(FieldColumnNo.Get('[Object Type]')) then
+                Evaluate(PTEAppObject."Type", FORMAT(SQLReader.GetValue(FieldColumnNo.Get('[Object Type]'))));
             //[Object ID]
-            if not SQLReader.IsDBNull(1) then
-                PTEAppObject."ID" := GetInteger(FORMAT(SQLReader.GetValue(1)));
+            if not SQLReader.IsDBNull(FieldColumnNo.Get('[Object ID]')) then
+                PTEAppObject."ID" := GetInteger(FORMAT(SQLReader.GetValue(FieldColumnNo.Get('[Object ID]'))));
             //[Object Subtype]
             if DatabaseFieldExists(PTESQLDatabase.Code, SourceTable, 'Object Subtype') then
-                if not SQLReader.IsDBNull(2) then
-                    Evaluate(PTEAppObject."Subtype", FORMAT(SQLReader.GetString(2)));
+                if not SQLReader.IsDBNull(FieldColumnNo.Get('[Object Subtype]')) then
+                    Evaluate(PTEAppObject."Subtype", FORMAT(SQLReader.GetString(FieldColumnNo.Get('[Object Subtype]'))));
             //[Package ID]
             if DatabaseFieldExists(PTESQLDatabase.Code, SourceTable, 'Package ID') then
-                if not SQLReader.IsDBNull(3) then begin
-                    Evaluate(PTEAppObject."Package ID", FORMAT(SQLReader.GetValue(3)));
+                if not SQLReader.IsDBNull(FieldColumnNo.Get('[Package ID]')) then begin
+                    Evaluate(PTEAppObject."Package ID", FORMAT(SQLReader.GetValue(FieldColumnNo.Get('[Package ID]'))));
                     PTEAppObject."Package ID" := DELCHR(PTEAppObject."Package ID", '=', '{}');
                 end;
             //[Runtime Package ID]
             if DatabaseFieldExists(PTESQLDatabase.Code, SourceTable, 'Runtime Package ID') then
-                if not SQLReader.IsDBNull(4) then begin
-                    Evaluate(PTEAppObject."Runtime Package ID", FORMAT(SQLReader.GetValue(4)));
+                if not SQLReader.IsDBNull(FieldColumnNo.Get('[Runtime Package ID]')) then begin
+                    Evaluate(PTEAppObject."Runtime Package ID", FORMAT(SQLReader.GetValue(FieldColumnNo.Get('[Runtime Package ID]'))));
                     PTEAppObject."Runtime Package ID" := DELCHR(PTEAppObject."Runtime Package ID", '=', '{}');
                 end;
             //[Object Name]
             if DatabaseFieldExists(PTESQLDatabase.Code, SourceTable, 'Object Name') then
-                if not SQLReader.IsDBNull(2) then
-                    Evaluate(PTEAppObject."Name", FORMAT(SQLReader.GetString(5)));
+                if not SQLReader.IsDBNull(FieldColumnNo.Get('[Object Name]')) then
+                    Evaluate(PTEAppObject."Name", FORMAT(SQLReader.GetString(FieldColumnNo.Get('[Object Name]'))));
 
             if PTEAppObject."Package ID" <> '' then begin
                 if IsPackageInstalled(PTEAppObject."Package ID") then
