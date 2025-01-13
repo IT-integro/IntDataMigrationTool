@@ -112,6 +112,26 @@ page 99016 "PTE Migrations"
                     PTERunMigrSQLQueriesBG.Run(Rec);
                 end;
             }
+            action("Check Number of Records")
+            {
+                Image = Answers;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                ToolTip = 'Count';
+                ApplicationArea = All;
+                trigger OnAction()
+                var
+                    PTEMigrCheckNoOfRecords: Codeunit "PTE Migr. Check No. of Records";
+                    PTEMigrNoOfRecordsPage: Page "PTE Migr. Number Of Records";
+                    PTEMigrNumberOfRecords: Record "PTE Migr. Number Of Records";
+                begin
+                    PTEMigrCheckNoOfRecords.CountMigratedRecords(Rec);
+                    PTEMigrNumberOfRecords.SetRange("Migration Code", rec.Code);
+                    PTEMigrNoOfRecordsPage.SetTableView(PTEMigrNumberOfRecords);
+                    PTEMigrNoOfRecordsPage.Run;
+                end;
+            }
         }
         area(Navigation)
         {
