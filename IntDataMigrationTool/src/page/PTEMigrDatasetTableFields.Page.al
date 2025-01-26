@@ -48,6 +48,12 @@ page 99014 "PTE Migr.Dataset Table Fields"
                     ToolTip = 'Specifies the name of the source field.';
                     StyleExpr = StyleOption;
                 }
+                field("Source Field Data Type"; Rec."Source Field Data Type")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the Data Type of the source field.';
+                    StyleExpr = StyleOption;
+                }
                 field("Target SQL Database Code"; Rec."Target SQL Database Code")
                 {
                     ApplicationArea = All;
@@ -70,6 +76,12 @@ page 99014 "PTE Migr.Dataset Table Fields"
                     ToolTip = 'Specifies the name of the target field.';
                     StyleExpr = StyleOption;
                     Editable = not Rec."Skip in Mapping";
+                }
+                field("Target Field Data Type"; Rec."Target Field Data Type")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the Data Type of the target field.';
+                    StyleExpr = StyleOption;
                 }
                 field("No. of Target Field Proposals"; Rec."No. of Target Field Proposals")
                 {

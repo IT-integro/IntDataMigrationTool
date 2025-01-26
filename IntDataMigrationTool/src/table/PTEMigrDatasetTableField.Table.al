@@ -171,6 +171,24 @@ table 99018 "PTE Migr. Dataset Table Field"
             end;
         }
 
+        field(250; "Source Field Data Type"; Text[150])
+        {
+            Caption = 'Source Field Data Type';
+            FieldClass = FlowField;
+            CalcFormula = lookup("PTE App. Object Table Field".Datatype where("SQL Database Code" = field("Source SQL Database Code"),
+                                                                               "Table Name" = field("Source table name"),
+                                                                               "Name" = field("Source Field Name")));
+            Editable = false;
+        }
+        field(251; "Target Field Data Type"; Text[150])
+        {
+            Caption = 'Target Field Data Type';
+            FieldClass = FlowField;
+            CalcFormula = lookup("PTE App. Object Table Field".Datatype where("SQL Database Code" = field("Target SQL Database Code"),
+                                                                               "Table Name" = field("Target table name"),
+                                                                               "Name" = field("Target Field Name")));
+            Editable = false;
+        }
     }
 
     keys

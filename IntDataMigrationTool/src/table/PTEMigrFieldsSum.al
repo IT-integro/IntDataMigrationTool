@@ -1,7 +1,9 @@
-table 99036 "PTE Migr. Number Of Records"
+table 99037 "PTE Migr. Field Sum"
 {
-    Caption = 'PTE Migration Number Of Records';
+    Caption = 'PTE Migration Field Sum';
     DataClassification = SystemMetadata;
+    LookupPageId = "PTE Migr. Field Sum";
+    DrillDownPageId = "PTE Migr. Field Sum";
 
     fields
     {
@@ -9,7 +11,11 @@ table 99036 "PTE Migr. Number Of Records"
         {
             Caption = 'Migration Code';
         }
-        field(2; "Entry No"; Integer)
+        field(2; "No Of Rec. Entry No"; Integer)
+        {
+            Caption = 'No Of Rec. Entry No';
+        }
+        field(3; "Entry No"; Integer)
         {
             Caption = 'Entry No';
         }
@@ -31,6 +37,16 @@ table 99036 "PTE Migr. Number Of Records"
             Caption = 'Source SQL Table Name';
             DataClassification = ToBeClassified;
         }
+        field(22; "Source Field Name"; Text[150])
+        {
+            Caption = 'Source Field Name';
+            DataClassification = ToBeClassified;
+        }
+        field(23; "Source SQL Field Name"; Text[150])
+        {
+            Caption = 'Source SQL Field Name';
+            DataClassification = ToBeClassified;
+        }
         field(29; "Target SQL Database Code"; Code[20])
         {
             Caption = 'Target SQL Database Code';
@@ -49,34 +65,35 @@ table 99036 "PTE Migr. Number Of Records"
             Caption = 'Target SQL Table Name';
             DataClassification = ToBeClassified;
         }
-        field(40; "Number of source records"; Integer)
+        field(32; "Target Field Name"; Text[150])
         {
-            Caption = 'Number of source records';
+            Caption = 'Target Field Name';
             DataClassification = ToBeClassified;
         }
-        field(50; "Number of target records"; Integer)
+        field(33; "Target SQL Field Name"; Text[150])
         {
-            Caption = 'Number of target records';
+            Caption = 'Target SQL Field Name';
             DataClassification = ToBeClassified;
         }
-        field(60; Difference; Integer)
+        field(40; "Source Sum Value"; Decimal)
+        {
+            Caption = 'Source Sum Value';
+            DataClassification = ToBeClassified;
+        }
+        field(50; "Target Sum Value"; Decimal)
+        {
+            Caption = 'Target Sum Value';
+            DataClassification = ToBeClassified;
+        }
+        field(60; Difference; Decimal)
         {
             Caption = 'Difference';
             DataClassification = ToBeClassified;
         }
-
-        field(200; "No of Incorrect Sums"; Integer)
-        {
-            Caption = 'Number of Incorrect Sums';
-            FieldClass = FlowField;
-            CalcFormula = Count("PTE Migr. Field Sum" where("Migration Code" = field("Migration Code"),
-                                                                             "No Of Rec. Entry No" = field("Entry No"),
-                                                                             Difference = filter(<> 0)));
-        }
     }
     keys
     {
-        key(PK; "Migration Code", "Entry No")
+        key(PK; "Migration Code", "No Of Rec. Entry No", "Entry No")
         {
             Clustered = true;
         }
