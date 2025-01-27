@@ -87,6 +87,11 @@ table 99006 "PTE Migration"
             Caption = 'Linked Server Query';
             DataClassification = ToBeClassified;
         }
+        field(201; "Check Sums In Record Counting"; Boolean)
+        {
+            Caption = 'Check Sums In Record Counting';
+            DataClassification = ToBeClassified;
+        }
     }
 
     keys

@@ -62,6 +62,11 @@ page 99016 "PTE Migrations"
                     ToolTip = 'Specifies if every query should be executed as a single transaction.';
                     ApplicationArea = All;
                 }
+                field("Check Sums In Record Counting"; Rec."Check Sums In Record Counting")
+                {
+                    ToolTip = 'Specifies whether the system should also calculate the sums of decimal fields when checking the number of records.';
+                    ApplicationArea = All;
+                }
             }
         }
     }
