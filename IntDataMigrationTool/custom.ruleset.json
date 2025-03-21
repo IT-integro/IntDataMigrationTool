@@ -1,0 +1,16 @@
+{
+    "name": "Custom ruleset",
+    "description": "Hid errors to build an app",
+    "rules": [
+        {
+            "id": "PTE0004",
+            "action": "Info",
+            "justification": "Permission Sets"           
+        },
+        {
+            "id": "PTE0005",
+            "action": "Info",
+            "justification": "Allow target OnPrem"           
+        }
+    ]
+}
