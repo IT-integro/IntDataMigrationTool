@@ -2,5 +2,6 @@
     "al.assemblyProbingPaths": [
         "./.netpackages",
         "c:/Windows/assembly/"
-    ]
+    ],
+    "al.ruleSetPath": "./custom.ruleset.json"
 }
