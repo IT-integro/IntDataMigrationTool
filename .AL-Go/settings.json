@@ -3,4 +3,5 @@
   "appFolders": [],
   "testFolders": [],
   "bcptTestFolders": []
+  "enablePerTenantExtensionCop": false
 }
