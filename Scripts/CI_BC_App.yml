@@ -59,23 +59,7 @@ variables:
     value: "60"
 
 jobs:
-  - job: GetAppVersion
-    steps:
-      - checkout: self
-      - checkout: Scripts
-      - task: PowerShell@2
-        name: GetAppVersion
-        displayName: Get app version from app.json
-        inputs:
-          targetType: filePath
-          filePath: $(Build.SourcesDirectory)/ALScripts/src/Get-AppVersion.ps1
-
   - job: Build
-    dependsOn: GetAppVersion
-    variables:
-      AppVersion: $[ dependencies.GetAppVersion.outputs['GetAppVersion.appVersion'] ]
-      BuildNo: $[counter(variables['AppVersion'], 0)]
-
     # SPECIFY CONTAINER VARIABLES:
     strategy:
       matrix:
