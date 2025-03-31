@@ -1,0 +1,155 @@
+# one-yml_v6
+# Documentation: https://docs.integro.pl/pl-pl/IntDevOpsDocsSite/pipeline-ci-one-yml.html
+
+trigger:
+  - release/*
+
+schedules:
+  - cron: "0 3 * * *"
+    displayName: Nightly build
+    branches:
+      include:
+        - master
+
+pool:
+  name: $(pool)
+  vmImage: $(vmImage)
+
+resources:
+  repositories:
+    - repository: Scripts
+      type: git
+      name: IntDevOpsScripts/ALScripts
+
+parameters:
+  - name: SkipAppUpgradeTest
+    type: boolean
+    default: true
+    displayName: "Skip running application upgrade and AL Cops"
+
+# SPECIFY PROJECT VARIABLES:
+variables:
+  - group: Credentials
+  - template: templates/ci/variables.yaml@Scripts
+  # PROJECT TYPE (PTE/ISV)
+  - name: projectType
+    value: "PTE"
+  # GENERAL
+  - name: PublishSourceCode
+    value: "false"
+  - name: IncludeSourceInPackageFile
+    value: "false"
+  - name: rulesetFile
+    value: ""
+  - name: failOnFailedTests
+    value: "true"
+  - name: isJoinedApp
+    value: "false"
+  # ISV
+  - name: Affixes
+    value: ""
+  - name: SupportedCountries
+    value: ""
+  # TELEMETRY
+  - name: TelemetryEnabled
+    value: "true"
+  - name: TelemetryKey
+    value: "key"
+  - name: ExpectedDuration
+    value: "60"
+
+jobs:
+  - job: GetAppVersion
+    steps:
+      - checkout: self
+      - checkout: Scripts
+      - task: PowerShell@2
+        name: GetAppVersion
+        displayName: Get app version from app.json
+        inputs:
+          targetType: filePath
+          filePath: $(Build.SourcesDirectory)/ALScripts/src/Get-AppVersion.ps1
+
+  - job: Build
+    dependsOn: GetAppVersion
+    variables:
+      AppVersion: $[ dependencies.GetAppVersion.outputs['GetAppVersion.appVersion'] ]
+      BuildNo: $[counter(variables['AppVersion'], 0)]
+
+    # SPECIFY CONTAINER VARIABLES:
+    strategy:
+      matrix:
+        ${{ if contains(variables['Build.DefinitionName'], 'latest') }}:
+          Latest:
+            artifactString: "bcartifacts/sandbox/25.5.30849.32350/w1/Latest"
+            PublishArtifacts: true
+            ContainerName: latest-$(Build.BuildId)
+            GlobalDevLicenseFormat: BCLICENSE
+            PackageName: ""
+            ProjectPackageName: ""
+            ArtifactName: ""
+            preProcessorSymbols: ""
+            AppJsonPath: ""
+            NewAppJsonPath: ""
+        ${{ if contains(variables['Build.DefinitionName'], 'nextminor') }}:
+          NextMinor:
+            artifactString: "bcinsider/sandbox//w1/NextMinor"
+            PublishArtifacts: false
+            ContainerName: nextminor-$(Build.BuildId)
+            GlobalDevLicenseFormat: CRONUS
+            PackageName: ""
+            ProjectPackageName: ""
+            ArtifactName: ""
+            preProcessorSymbols: ""
+        ${{ if contains(variables['Build.DefinitionName'], 'nextmajor') }}:
+          NextMajor:
+            artifactString: "bcinsider/sandbox//w1/NextMajor"
+            PublishArtifacts: false
+            ContainerName: nextmajor-$(Build.BuildId)
+            GlobalDevLicenseFormat: CRONUS
+            PackageName: ""
+            ProjectPackageName: ""
+            ArtifactName: ""
+            preProcessorSymbols: ""
+
+    steps:
+      - template: templates/ci/preflight.yaml@Scripts
+        parameters:
+          LicenseFileName: ""
+          AppJsonPath: "$(AppJsonPath)"
+          NewAppJsonPath: "$(NewAppJsonPath)"
+      # SPECIFY DEPENDENCIES FROM AZURE ARTIFACTS FEEDS:
+      - template: templates/ci/install-products.yaml@Scripts
+        parameters:
+          Products:
+            - name: master-data-management-system
+              publisher: integroit
+              version: "*"
+            - name: polish-functionality-starter-pack
+              publisher: integroit
+              version: "*"
+            - name: electronic-banking-base-app
+              publisher: integroit
+              version: "*"
+            - name: electronic-banking-extension-pl
+              publisher: integroit
+              version: "*"
+      # DO NOT MODIFY:
+      - template: templates/ci/validation.yaml@Scripts
+        parameters:
+          ${{ if eq(parameters.SkipAppUpgradeTest, false) }}:
+            PackageName: "$(PackageName)"
+            ProjectPackageName: "$(ProjectPackageName)"
+          Affixes: "${{variables.Affixes}}"
+          SupportedCountries: "${{variables.SupportedCountries}}"
+          rulesetFile: "${{variables.rulesetFile}}"
+          ProjectType: "${{variables.projectType}}"
+          ${{ if eq(variables.isJoinedApp, true) }}:
+            isJoinedApp: true
+      - template: templates/ci/postflight.yaml@Scripts
+        parameters:
+          failOnFailedTests: "${{variables.failOnFailedTests}}"
+          PublishSourceCode: "${{variables.PublishSourceCode}}"
+          IncludeSourceInPackageFile: "${{variables.IncludeSourceInPackageFile}}"
+          ${{ if eq(variables.isJoinedApp, true) }}:
+            isJoinedApp: true
