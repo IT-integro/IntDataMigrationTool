@@ -20,6 +20,7 @@ resources:
     - repository: Scripts
       type: git
       name: IntDevOpsScripts/ALScripts
+      ref: devops/github-tests
 
 parameters:
   - name: SkipAppUpgradeTest
