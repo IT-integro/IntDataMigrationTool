@@ -4,13 +4,6 @@
 trigger:
   - release/*
 
-schedules:
-  - cron: "0 3 * * *"
-    displayName: Nightly build
-    branches:
-      include:
-        - master
-
 pool:
   name: $(pool)
   vmImage: $(vmImage)
@@ -20,7 +13,6 @@ resources:
     - repository: Scripts
       type: git
       name: IntDevOpsScripts/ALScripts
-      ref: devops/github-tests
 
 parameters:
   - name: SkipAppUpgradeTest
