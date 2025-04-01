@@ -82,9 +82,9 @@ jobs:
           if((Test-Path "$(Pipeline.Workspace)\s\IT-integro") -eq $false){
             New-item -itemtype directory -path "$(Pipeline.Workspace)\s\IT-integro"
           }
-          gci $(Pipeline.Workspace)\s\IntDataMigrationTool
           copy-item "$(Pipeline.Workspace)\s\IntDataMigrationTool" "$(Pipeline.Workspace)\s\IT-integro" -force -recurse
-          gci $(Pipeline.Workspace)\s\$(Build.Repository.Name)
+          New-item -itemtype directory -path "$(Pipeline.Workspace)\s\IT-integro\IntDataMigrationTool\Apps"
+          copy-item "$(Pipeline.Workspace)\s\IT-integro\IntDataMigrationTool\IntDataMigrationTool" "$(Pipeline.Workspace)\s\IT-integro\IntDataMigrationTool\Apps" -force -recurse
         displayName: Move Source Directory  
       - template: templates/ci/preflight.yaml@Scripts
         parameters:
