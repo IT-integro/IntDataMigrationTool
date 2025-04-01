@@ -86,21 +86,6 @@ jobs:
           AppJsonPath: "$(AppJsonPath)"
           NewAppJsonPath: "$(NewAppJsonPath)"
       # SPECIFY DEPENDENCIES FROM AZURE ARTIFACTS FEEDS:
-      - template: templates/ci/install-products.yaml@Scripts
-        parameters:
-          Products:
-            - name: master-data-management-system
-              publisher: integroit
-              version: "*"
-            - name: polish-functionality-starter-pack
-              publisher: integroit
-              version: "*"
-            - name: electronic-banking-base-app
-              publisher: integroit
-              version: "*"
-            - name: electronic-banking-extension-pl
-              publisher: integroit
-              version: "*"
       # DO NOT MODIFY:
       - template: templates/ci/validation.yaml@Scripts
         parameters:
