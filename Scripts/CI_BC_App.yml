@@ -66,9 +66,9 @@ jobs:
       matrix:
         ${{ if contains(variables['Build.DefinitionName'], 'latest') }}:
           Latest:
-            artifactString: "bcartifacts/sandbox/25.5.30849.32350/w1/Latest"
+            artifactString: "dedicated"
             PublishArtifacts: true
-            ContainerName: latest-$(Build.BuildId)
+            ContainerName: latest
             GlobalDevLicenseFormat: BCLICENSE
             PackageName: ""
             ProjectPackageName: "int-data-migration-tool"
