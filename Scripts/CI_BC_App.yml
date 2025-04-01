@@ -98,6 +98,7 @@ jobs:
             preProcessorSymbols: ""
 
     steps:
+      - checkout: self
       - powershell: |
           if((Test-Path "$(Pipeline.Workspace)\s\$(Build.Repository.Name)") -eq $false){
             New-item -itemtype directory -path "$(Pipeline.Workspace)\s\$(Build.Repository.Name)"
