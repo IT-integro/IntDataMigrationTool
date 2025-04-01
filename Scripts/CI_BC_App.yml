@@ -111,6 +111,7 @@ jobs:
         parameters:
           LicenseFileName: ""
           SkipTargetCheck: true
+          SkipTestAppCheck: true
           AppJsonPath: "$(AppJsonPath)"
           NewAppJsonPath: "$(NewAppJsonPath)"
       # SPECIFY DEPENDENCIES FROM AZURE ARTIFACTS FEEDS:
