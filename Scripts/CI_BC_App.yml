@@ -110,6 +110,7 @@ jobs:
       - template: templates/ci/preflight.yaml@Scripts
         parameters:
           LicenseFileName: ""
+          SkipTargetCheck: true
           AppJsonPath: "$(AppJsonPath)"
           NewAppJsonPath: "$(NewAppJsonPath)"
       # SPECIFY DEPENDENCIES FROM AZURE ARTIFACTS FEEDS:
