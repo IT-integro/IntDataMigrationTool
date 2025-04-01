@@ -2,5 +2,6 @@
   "country": "w1",
   "appFolders": [],
   "testFolders": [],
-  "bcptTestFolders": []
+  "bcptTestFolders": [],
+  "enablePerTenantExtensionCop": false
 }
