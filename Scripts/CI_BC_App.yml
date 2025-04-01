@@ -98,6 +98,12 @@ jobs:
             preProcessorSymbols: ""
 
     steps:
+      - powershell: |
+          if(Test-Path $(BUILD.SOURCESDIRECTORY) -eq false){
+            New-item -itemtype directory -name $(BUILD.SOURCESDIRECTORY)
+          }
+          copy-item "$(Pipeline.Workspace)\s\$(Build.Repository.Name)" "$(Pipeline.Workspace)\s\IT-integro\$(Build.Repository.Name)""
+        displayName: Move Source Directory  
       - template: templates/ci/preflight.yaml@Scripts
         parameters:
           LicenseFileName: ""
