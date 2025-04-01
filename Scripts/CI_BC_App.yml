@@ -71,32 +71,11 @@ jobs:
             ContainerName: latest-$(Build.BuildId)
             GlobalDevLicenseFormat: BCLICENSE
             PackageName: ""
-            ProjectPackageName: ""
+            ProjectPackageName: "int-data-migration-tool"
             ArtifactName: ""
             preProcessorSymbols: ""
             AppJsonPath: ""
             NewAppJsonPath: ""
-        ${{ if contains(variables['Build.DefinitionName'], 'nextminor') }}:
-          NextMinor:
-            artifactString: "bcinsider/sandbox//w1/NextMinor"
-            PublishArtifacts: false
-            ContainerName: nextminor-$(Build.BuildId)
-            GlobalDevLicenseFormat: CRONUS
-            PackageName: ""
-            ProjectPackageName: ""
-            ArtifactName: ""
-            preProcessorSymbols: ""
-        ${{ if contains(variables['Build.DefinitionName'], 'nextmajor') }}:
-          NextMajor:
-            artifactString: "bcinsider/sandbox//w1/NextMajor"
-            PublishArtifacts: false
-            ContainerName: nextmajor-$(Build.BuildId)
-            GlobalDevLicenseFormat: CRONUS
-            PackageName: ""
-            ProjectPackageName: ""
-            ArtifactName: ""
-            preProcessorSymbols: ""
-
     steps:
       - checkout: self
       - powershell: |
