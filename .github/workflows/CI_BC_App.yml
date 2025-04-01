@@ -1,0 +1,107 @@
+# one-yml_v6
+# Documentation: https://docs.integro.pl/pl-pl/IntDevOpsDocsSite/pipeline-ci-one-yml.html
+
+trigger:
+  - release/*
+
+pool:
+  name: $(pool)
+  vmImage: $(vmImage)
+
+resources:
+  repositories:
+    - repository: Scripts
+      type: git
+      name: IntDevOpsScripts/ALScripts
+
+parameters:
+  - name: SkipAppUpgradeTest
+    type: boolean
+    default: true
+    displayName: "Skip running application upgrade and AL Cops"
+
+# SPECIFY PROJECT VARIABLES:
+variables:
+  - group: Credentials
+  - template: templates/ci/variables.yaml@Scripts
+  # PROJECT TYPE (PTE/ISV)
+  - name: projectType
+    value: "PTE"
+  # GENERAL
+  - name: PublishSourceCode
+    value: "false"
+  - name: IncludeSourceInPackageFile
+    value: "false"
+  - name: rulesetFile
+    value: ""
+  - name: failOnFailedTests
+    value: "true"
+  - name: isJoinedApp
+    value: "false"
+  # ISV
+  - name: Affixes
+    value: ""
+  - name: SupportedCountries
+    value: ""
+  # TELEMETRY
+  - name: TelemetryEnabled
+    value: "true"
+  - name: TelemetryKey
+    value: "key"
+  - name: ExpectedDuration
+    value: "60"
+
+jobs:
+  - job: Build
+    # SPECIFY CONTAINER VARIABLES:
+    strategy:
+      matrix:
+        ${{ if contains(variables['Build.DefinitionName'], 'latest') }}:
+          Latest:
+            artifactString: "dedicated"
+            PublishArtifacts: true
+            ContainerName: latest
+            GlobalDevLicenseFormat: BCLICENSE
+            PackageName: ""
+            ProjectPackageName: "int-data-migration-tool"
+            ArtifactName: ""
+            preProcessorSymbols: ""
+            AppJsonPath: ""
+            NewAppJsonPath: ""
+    steps:
+      - checkout: self
+      - powershell: |
+          if((Test-Path "$(Pipeline.Workspace)\s\IT-integro") -eq $false){
+            New-item -itemtype directory -path "$(Pipeline.Workspace)\s\IT-integro"
+          }
+          copy-item "$(Pipeline.Workspace)\s\IntDataMigrationTool" "$(Pipeline.Workspace)\s\IT-integro" -force -recurse
+          New-item -itemtype directory -path "$(Pipeline.Workspace)\s\IT-integro\IntDataMigrationTool\Apps"
+          copy-item "$(Pipeline.Workspace)\s\IT-integro\IntDataMigrationTool\IntDataMigrationTool" "$(Pipeline.Workspace)\s\IT-integro\IntDataMigrationTool\Apps" -force -recurse
+        displayName: Move Source Directory  
+      - template: templates/ci/preflight.yaml@Scripts
+        parameters:
+          LicenseFileName: ""
+          SkipTargetCheck: true
+          SkipTestAppCheck: true
+          AppJsonPath: "$(AppJsonPath)"
+          NewAppJsonPath: "$(NewAppJsonPath)"
+      # SPECIFY DEPENDENCIES FROM AZURE ARTIFACTS FEEDS:
+      # DO NOT MODIFY:
+      - template: templates/ci/validation.yaml@Scripts
+        parameters:
+          ${{ if eq(parameters.SkipAppUpgradeTest, false) }}:
+            PackageName: "$(PackageName)"
+            ProjectPackageName: "$(ProjectPackageName)"
+          Affixes: "${{variables.Affixes}}"
+          SupportedCountries: "${{variables.SupportedCountries}}"
+          rulesetFile: "${{variables.rulesetFile}}"
+          ProjectType: "${{variables.projectType}}"
+          ${{ if eq(variables.isJoinedApp, true) }}:
+            isJoinedApp: true
+      - template: templates/ci/postflight.yaml@Scripts
+        parameters:
+          failOnFailedTests: "${{variables.failOnFailedTests}}"
+          PublishSourceCode: "${{variables.PublishSourceCode}}"
+          IncludeSourceInPackageFile: "${{variables.IncludeSourceInPackageFile}}"
+          ${{ if eq(variables.isJoinedApp, true) }}:
+            isJoinedApp: true
