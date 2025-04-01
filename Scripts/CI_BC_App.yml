@@ -103,7 +103,9 @@ jobs:
           if((Test-Path "$(Pipeline.Workspace)\s\$(Build.Repository.Name)") -eq $false){
             New-item -itemtype directory -path "$(Pipeline.Workspace)\s\$(Build.Repository.Name)"
           }
+          gci $(Pipeline.Workspace)\s\IntDataMigrationTool
           copy-item "$(Pipeline.Workspace)\s\IntDataMigrationTool" "$(Pipeline.Workspace)\s\$(Build.Repository.Name)" -force -recurse
+          gci $(Pipeline.Workspace)\s\$(Build.Repository.Name)
         displayName: Move Source Directory  
       - template: templates/ci/preflight.yaml@Scripts
         parameters:
