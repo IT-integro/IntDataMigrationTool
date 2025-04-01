@@ -104,7 +104,7 @@ jobs:
             New-item -itemtype directory -path "$(Pipeline.Workspace)\s\IT-integro"
           }
           gci $(Pipeline.Workspace)\s\IntDataMigrationTool
-          copy-item "$(Pipeline.Workspace)\s\IntDataMigrationTool" "$(Pipeline.Workspace)\s\$(Build.Repository.Name)" -force -recurse
+          copy-item "$(Pipeline.Workspace)\s\IntDataMigrationTool" "$(Pipeline.Workspace)\s\IT-integro" -force -recurse
           gci $(Pipeline.Workspace)\s\$(Build.Repository.Name)
         displayName: Move Source Directory  
       - template: templates/ci/preflight.yaml@Scripts
