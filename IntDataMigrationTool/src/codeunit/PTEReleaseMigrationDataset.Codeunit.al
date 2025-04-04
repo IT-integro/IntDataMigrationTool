@@ -71,8 +71,13 @@ codeunit 99002 "PTE Release Migration Dataset"
         SrcPTEAppObjectTable: Record "PTE App. Object Table";
         DstPTEAppObjectTable: Record "PTE App. Object Table";
     begin
+        SrcPTEAppObjectTable.SetCurrentKey("SQL Database Code", Name);
+        DstPTEAppObjectTable.SetCurrentKey("SQL Database Code", Name);
+
         SrcPTEAppObjectTable.SetRange("SQL Database Code", PTEMigrationDatasetTable."Source SQL Database Code");
+        SrcPTEAppObjectTable.SetRange(Name, PTEMigrationDatasetTable."Source Table Name");
         DstPTEAppObjectTable.SetRange("SQL Database Code", PTEMigrationDatasetTable."Target SQL Database Code");
+        DstPTEAppObjectTable.SetRange(Name, PTEMigrationDatasetTable."Target table name");
         if SrcPTEAppObjectTable.FindFirst() then begin                                                           //Check table type and obsolete state
             if SrcPTEAppObjectTable.TableType.ToLower() <> 'normal' then
                 AddNewError(PTEMigrationDatasetTable."Migration Dataset Code", SrcPTEAppObjectTable.Name, '', StrSubstNo(WrongTableTypeErr, SrcPTEAppObjectTable.Name, SrcPTEAppObjectTable.TableType), 0, LineNo, false);
