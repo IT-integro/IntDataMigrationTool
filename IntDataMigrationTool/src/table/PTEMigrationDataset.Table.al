@@ -16,6 +16,18 @@ table 99005 "PTE Migration Dataset"
             TableRelation = "PTE SQL Database".Code;
             ValidateTableRelation = true;
             DataClassification = ToBeClassified;
+
+            trigger OnValidate()
+            var
+                PTEAppObject: Record "PTE App. Object";
+                TableExtFoundQst: Label 'Selected Source SQL Database contains Table Extensions in its metadata. Data Migration Tool does not support migration of such objects. Do You want to proceed?';
+            begin
+                PTEAppObject.SetRange("SQL Database Code", Rec."Source SQL Database Code");
+                PTEAppObject.SetRange(Type, PTEAppObject.Type::"TableExtension");
+                if not PTEAppObject.IsEmpty then
+                    if not Confirm(TableExtFoundQst) then
+                        exit;
+            end;
         }
         field(20; "Target SQL Database Code"; Code[20])
         {
