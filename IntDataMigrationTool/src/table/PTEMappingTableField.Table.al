@@ -44,6 +44,11 @@ table 99023 "PTE Mapping Table Field"
             Caption = 'Constant';
             DataClassification = ToBeClassified;
         }
+        field(50; "Description"; Text[250])
+        {
+            Caption = 'Description';
+            DataClassification = ToBeClassified;
+        }
     }
     keys
     {

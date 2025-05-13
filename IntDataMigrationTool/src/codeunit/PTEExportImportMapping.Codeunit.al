@@ -20,12 +20,12 @@ codeunit 99006 "PTE Export Import Mapping"
         DialogProgress: Dialog;
         ProgressTotal: Integer;
         CurrentProgress: Integer;
-        AdditionalTargetFileds: Text;
-        GeneretingDataFileMsg: Label 'Generating data file. No of records: %1', Comment = '%1 = No Of Records';
+        AdditionalTargetFields: Text;
+        GeneratingDataFileMsg: Label 'Generating data file. No of records: %1', Comment = '%1 = No Of Records';
     begin
         PTEMappingTableField.SetRange("Mapping Code", PTEMappingTable."Mapping Code");
         ProgressTotal := PTEMappingTableField.Count();
-        DialogProgress.OPEN(STRSUBSTNO(GeneretingDataFileMsg, ProgressTotal) + ': #1#####', CurrentProgress);
+        DialogProgress.OPEN(STRSUBSTNO(GeneratingDataFileMsg, ProgressTotal) + ': #1#####', CurrentProgress);
         // Mapping
         MappingJsonObject.Add('Mapping Code', PTEMapping.Code);
         MappingJsonObject.Add('Mapping Description', PTEMapping.Description);
@@ -37,6 +37,7 @@ codeunit 99006 "PTE Export Import Mapping"
                 Clear(TablesJsonObject);
                 TablesJsonObject.Add('Source Table Name', PTEMappingTable."Source Table Name");
                 TablesJsonObject.Add('Target Table Name', PTEMappingTable."Target Table Name");
+                TablesJsonObject.Add('Table Description', PTEMappingTable.Description);
                 //Fields
                 PTEMappingTableField.SetRange("Mapping Code", PTEMappingTable."Mapping Code");
                 PTEMappingTableField.SetRange("Source Table Name", PTEMappingTable."Source Table Name");
@@ -44,15 +45,16 @@ codeunit 99006 "PTE Export Import Mapping"
                 if PTEMappingTableField.FindSet() then begin
                     Clear(TableFieldsJsonArray);
                     repeat
-                        AdditionalTargetFileds := '';
+                        AdditionalTargetFields := '';
                         Clear(TableFieldJsonObject);
                         TableFieldJsonObject.Add('Source Field Name', PTEMappingTableField."Source Field Name");
                         TableFieldJsonObject.Add('Target Field Name', PTEMappingTableField."Target Field Name");
                         TableFieldJsonObject.Add('Skip in Mapping', PTEMappingTableField.Skip);
                         TableFieldJsonObject.Add('Constant', PTEMappingTableField.Constant);
-                        GetAdditionalTargetFields(PTEMappingTableField, AdditionalTargetFileds);
-                        if AdditionalTargetFileds <> '' then
-                            TableFieldJsonObject.Add('Additional Target Fields', AdditionalTargetFileds);
+                        TableFieldJsonObject.Add('Description', PTEMappingTableField.Description);
+                        GetAdditionalTargetFields(PTEMappingTableField, AdditionalTargetFields);
+                        if AdditionalTargetFields <> '' then
+                            TableFieldJsonObject.Add('Additional Target Fields', AdditionalTargetFields);
                         //Fields options
                         PTEMappingTableFieldOption.SetRange("Mapping Code", PTEMappingTableField."Mapping Code");
                         PTEMappingTableFieldOption.SetRange("Source Table Name", PTEMappingTableField."Source Table Name");
@@ -120,8 +122,10 @@ codeunit 99006 "PTE Export Import Mapping"
         OptionsJsonObjectText: Text;
         SourceTableName: Text;
         TargetTableName: Text;
+        TableDescription: Text;
         SourceFieldName: Text;
         TargetFieldName: Text;
+        FieldDescription: Text;
         AdditionalTargetTables: Text;
         SkipInMapping: Text;
         Constant: Text;
@@ -160,10 +164,12 @@ codeunit 99006 "PTE Export Import Mapping"
                     TableObjectJSONManagement.InitializeObject(TablesJsonObjectText);
                     TableObjectJSONManagement.GetStringPropertyValueByName('Source Table Name', SourceTableName);
                     TableObjectJSONManagement.GetStringPropertyValueByName('Target Table Name', TargetTableName);
+                    TableObjectJSONManagement.GetStringPropertyValueByName('Table Description', TableDescription);
                     PTEMappingTable.Init();
                     PTEMappingTable."Mapping Code" := CopyStr(MappingCode, 1, MaxStrLen(PTEMappingTable."Mapping Code"));
                     PTEMappingTable."Source Table Name" := CopyStr(SourceTableName, 1, MaxStrLen(PTEMappingTable."Source Table Name"));
                     PTEMappingTable."Target Table Name" := CopyStr(TargetTableName, 1, MaxStrLen(PTEMappingTable."Target Table Name"));
+                    PTEMappingTable.Description := CopyStr(TableDescription, 1, MaxStrLen(PTEMappingTable."Description"));
                     PTEMappingTable.Insert();
                     //Mapping Fields
                     if TableObjectJSONManagement.GetArrayPropertyValueAsStringByName('Fields', FieldsJsonArrayText) then begin
@@ -177,6 +183,7 @@ codeunit 99006 "PTE Export Import Mapping"
                             FieldObjectJSONManagement.GetStringPropertyValueByName('Target Field Name', TargetFieldName);
                             FieldObjectJSONManagement.GetStringPropertyValueByName('Skip in Mapping', SkipInMapping);
                             FieldObjectJSONManagement.GetStringPropertyValueByName('Constant', Constant);
+                            FieldObjectJSONManagement.GetStringPropertyValueByName('Description', FieldDescription);
 
                             PTEMappingTableField.Init();
                             PTEMappingTableField."Mapping Code" := CopyStr(MappingCode, 1, MaxStrLen(PTEMappingTableField."Mapping Code"));
@@ -184,6 +191,7 @@ codeunit 99006 "PTE Export Import Mapping"
                             PTEMappingTableField."Source Table Name" := CopyStr(SourceTableName, 1, MaxStrLen(PTEMappingTableField."Source Table Name"));
                             PTEMappingTableField."Target Field Name" := CopyStr(TargetFieldName, 1, MaxStrLen(PTEMappingTableField."Target Field Name"));
                             PTEMappingTableField."Target Table Name" := CopyStr(TargetTableName, 1, MaxStrLen(PTEMappingTableField."Target Table Name"));
+                            PTEMappingTableField."Description" := CopyStr(FieldDescription, 1, MaxStrLen(PTEMappingTableField."Description"));
 
                             if SkipInMapping <> '' then
                                 Evaluate(PTEMappingTableField.Skip, SkipInMapping);
@@ -266,10 +274,10 @@ codeunit 99006 "PTE Export Import Mapping"
         foreach Field in FieldList do begin
             PTEMappingAddTargetField.Init();
             PTEMappingAddTargetField."Mapping Code" := PTEMappingTableField."Mapping Code";
-            PTEMappingAddTargetField."Source Table Name" := PTEMappingTableField."Source Table Name";
-            PTEMappingAddTargetField."Source Field Name" := PTEMappingTableField."Source Field Name";
+            PTEMappingAddTargetField."Source Table Name" := CopyStr(PTEMappingTableField."Source Table Name", 1, MaxStrLen(PTEMappingAddTargetField."Source Table Name"));
+            PTEMappingAddTargetField."Source Field Name" := CopyStr(PTEMappingTableField."Source Field Name", 1, MaxStrLen(PTEMappingAddTargetField."Source Field Name"));
             PTEMappingAddTargetField."Additional Target Field" := CopyStr(Field, 1, MaxStrLen(PTEMappingAddTargetField."Additional Target Field"));
-            PTEMappingAddTargetField."Target Table Name" := PTEMappingTableField."Target Table Name";
+            PTEMappingAddTargetField."Target Table Name" := CopyStr(PTEMappingTableField."Target Table Name", 1, MaxStrLen(PTEMappingAddTargetField."Target Table Name"));
             PTEMappingAddTargetField.Insert();
         end;
     end;

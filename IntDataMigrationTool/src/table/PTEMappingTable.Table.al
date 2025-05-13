@@ -27,6 +27,11 @@ table 99022 "PTE Mapping Table"
             Caption = 'Skip';
             DataClassification = ToBeClassified;
         }
+        field(30; "Description"; Text[250])
+        {
+            Caption = 'Description';
+            DataClassification = ToBeClassified;
+        }
     }
     keys
     {
