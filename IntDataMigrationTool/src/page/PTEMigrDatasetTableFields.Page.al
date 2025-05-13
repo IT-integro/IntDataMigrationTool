@@ -142,13 +142,6 @@ page 99014 "PTE Migr.Dataset Table Fields"
                     ToolTip = 'Specifies the number of detected warnings, which could occur during the migration.';
                     StyleExpr = StyleOption;
                 }
-                field(Comment; Rec.Comment)
-                {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies te Comments.';
-                    StyleExpr = StyleOption;
-                    Visible = true;
-                }
                 field("Ignore Errors"; Rec."Ignore Errors")
                 {
                     ApplicationArea = All;
@@ -160,6 +153,13 @@ page 99014 "PTE Migr.Dataset Table Fields"
                     ApplicationArea = All;
                     ToolTip = 'Specifies if this field should be skipped during all actions which apply mapping.';
                     StyleExpr = StyleOption;
+                }
+                field(Comment; Rec.Comment)
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the Comments.';
+                    StyleExpr = StyleOption;
+                    Visible = true;
                 }
             }
         }
