@@ -42,7 +42,7 @@ codeunit 99015 "PTECheckEmptyFieldCount"
 
             FieldType := GlobalPTEAppObjectTableField.Datatype;
 
-            GetRecorsCount(SqlQueryTableName, SqlFieldName, CompanyName, FieldType, SqlTableName);
+            GetRecordsCount(SqlQueryTableName, SqlFieldName, CompanyName, FieldType, SqlTableName);
         end;
     end;
 
@@ -78,7 +78,7 @@ codeunit 99015 "PTECheckEmptyFieldCount"
         GlobalPTEAppObjectTableField.FindFirst();
     end;
 
-    local procedure GetRecorsCount(SqlQueryTableName: Text; SqlFieldName: Text[150]; CompanyName: Text[150]; FieldType: Text[150]; SqlTableName: Text)
+    local procedure GetRecordsCount(SqlQueryTableName: Text; SqlFieldName: Text[150]; CompanyName: Text[150]; FieldType: Text[150]; SqlTableName: Text)
     var
         NumberOfRecords, NumberOfEmptyFields : Integer;
         SQLQueryText: Text;
@@ -98,7 +98,7 @@ codeunit 99015 "PTECheckEmptyFieldCount"
         case DataType.ToUpper() of
             'CODE', 'TEXT', 'RECORDID', 'DATEFORMULA':
                 exit('=''''');
-            'GUID', 'BLOB', 'MEDIA':
+            'GUID', 'BLOB', 'MEDIA', 'MEDIASET':
                 begin
                     PTESQLDatabaseTableField.SetRange("SQL Database Code", GlobalSourceSQLDatabaseCode);
                     PTESQLDatabaseTableField.SetRange("Table Name", SqlQueryTableName);
