@@ -26,6 +26,7 @@ codeunit 99014 "PTE Copy Mapping From Dataset"
                 PTEMappingTable.Validate("Source Table Name", PTEMigrationDatasetTable."Source Table Name");
                 PTEMappingTable.Validate("Target Table Name", PTEMigrationDatasetTable."Target table name");
                 PTEMappingTable.Skip := PTEMigrationDatasetTable."Skip in Mapping";
+                PTEMappingTable.Description := PTEMigrationDatasetTable.Description;
                 PTEMappingTable.Insert(true);
 
                 CopyFieldMappings(PTEMappingTable, PTEMigrationDatasetTable);
@@ -49,6 +50,7 @@ codeunit 99014 "PTE Copy Mapping From Dataset"
                 PTEMappingTableField.Validate("Target Field Name", PTEMigrDatasetTableField."Target Field name");
                 PTEMappingTableField.Skip := PTEMigrDatasetTableField."Skip in Mapping";
                 PTEMappingTableField.Constant := PTEMigrDatasetTableField."Mapping Type" = PTEMigrDatasetTableField."Mapping Type"::ConstantToField;
+                PTEMappingTableField.Description := PTEMigrDatasetTableField.Comment;
                 PTEMappingTableField.Insert(true);
 
                 CopyAdditionalFields(PTEMigrDatasetTableField, PTEMappingTable."Mapping Code");
@@ -93,8 +95,8 @@ codeunit 99014 "PTE Copy Mapping From Dataset"
             repeat
                 PTEMappingAddTargetField.Init();
                 PTEMappingAddTargetField."Mapping Code" := MappingCode;
-                PTEMappingAddTargetField."Source Table Name" := PTEMigrDatasetTableField."Source table name";
-                PTEMappingAddTargetField."Source Field Name" := PTEMigrDatasetTableField."Source Field Name";
+                PTEMappingAddTargetField."Source Table Name" := CopyStr(PTEMigrDatasetTableField."Source table name", 1, MaxStrLen(PTEMappingAddTargetField."Source Table Name"));
+                PTEMappingAddTargetField."Source Field Name" := CopyStr(PTEMigrDatasetTableField."Source Field Name", 1, MaxStrLen(PTEMappingAddTargetField."Source Field Name"));
                 PTEMappingAddTargetField."Additional Target Field" := PTEMigrDsTableFieldAddTarget."Target Field Name";
                 PTEMappingAddTargetField."Target Table Name" := PTEMigrDsTableFieldAddTarget."Target table name";
                 PTEMappingAddTargetField.Insert();

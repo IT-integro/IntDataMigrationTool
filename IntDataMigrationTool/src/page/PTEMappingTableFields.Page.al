@@ -40,6 +40,10 @@ page 99024 "PTE Mapping Table Fields"
                     ToolTip = 'Specifies the Field Name to which source data will be migrated.';
                     ApplicationArea = All;
                 }
+                field(Description; Rec.Description)
+                {
+                    ToolTip = 'Add description or notes for specified field.';
+                }
             }
         }
 

@@ -28,6 +28,10 @@ page 99023 "PTE Mapping Tables"
                     ToolTip = 'Specifies the Table Name to which source data will be migrated.';
                     ApplicationArea = All;
                 }
+                field(Description; Rec.Description)
+                {
+                    ToolTip = 'Add description or notes for specified table.';
+                }
             }
         }
     }
