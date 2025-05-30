@@ -194,7 +194,7 @@ codeunit 99002 "PTE Release Migration Dataset"
         PTEMigrDsTblFldOption.SetRange("Source Field Name", SrcPTEAppObjectTableField.Name);
         if PTEMigrDsTblFldOption.FindSet() then
             repeat
-                if PTEMigrDsTblFldOption."Target Option Name" = '' then
+                if (PTEMigrDsTblFldOption."Target Option Name" = '') and (PTEMigrDsTblFldOption."Target Option Name" <> PTEMigrDsTblFldOption."Source Option Name") then
                     AddNewError(MigrationDatasetCode, SrcPTEAppObjectTableField."Table Name", SrcPTEAppObjectTableField.Name, StrSubstNo(OptionHasNoTargetErr, PTEMigrDsTblFldOption."Source Option Name", SrcPTEAppObjectTableField.Name), 0, LineNo, PTEMigrDsTblFldOption."Source Option Name", SkipErr);
             until PTEMigrDsTblFldOption.Next() = 0;
         //Check if all options from db are in dataset
