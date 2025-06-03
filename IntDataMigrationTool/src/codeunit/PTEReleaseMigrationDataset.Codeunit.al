@@ -112,9 +112,9 @@ codeunit 99002 "PTE Release Migration Dataset"
         if SrcPTEAppObjectTableField.FindSet() then
             repeat
                 if not PTEMigrDatasetTableField.Get(PTEMigrationDatasetTable."Migration Dataset Code", PTEMigrationDatasetTable."Source table name", SrcPTEAppObjectTableField.Name) then
-                    AddNewError(PTEMigrDatasetTableField."Migration Dataset Code", PTEMigrationDatasetTable."Source table name", PTEMigrDatasetTableField."Source Field Name", StrSubstNo(KeyFieldNotFoundInSourceErr, SrcPTEAppObjectTableField.Name), 0, LineNo, PTEMigrDatasetTableField."Ignore Errors");
+                    AddNewError(PTEMigrationDatasetTable."Migration Dataset Code", PTEMigrationDatasetTable."Source table name", SrcPTEAppObjectTableField.Name, StrSubstNo(KeyFieldNotFoundInSourceErr, SrcPTEAppObjectTableField.Name), 0, LineNo, PTEMigrDatasetTableField."Ignore Errors");
                 if PTEMigrDatasetTableField."Target Field name" = '' then
-                    AddNewError(PTEMigrDatasetTableField."Migration Dataset Code", PTEMigrationDatasetTable."Source table name", PTEMigrDatasetTableField."Source Field Name", StrSubstNo(KeyFieldHasNoTargetErr, PTEMigrDatasetTableField."Source Field Name", PTEMigrationDatasetTable."Source table name"), 0, LineNo, PTEMigrDatasetTableField."Ignore Errors");
+                    AddNewError(PTEMigrationDatasetTable."Migration Dataset Code", PTEMigrationDatasetTable."Source table name", PTEMigrDatasetTableField."Source Field Name", StrSubstNo(KeyFieldHasNoTargetErr, PTEMigrDatasetTableField."Source Field Name", PTEMigrationDatasetTable."Source table name"), 0, LineNo, PTEMigrDatasetTableField."Ignore Errors");
             until SrcPTEAppObjectTableField.Next() = 0;
         //Check if all target keys have source values
         if DstPTEAppObjectTableField.FindSet() then
