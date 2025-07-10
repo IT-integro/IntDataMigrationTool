@@ -20,13 +20,13 @@ page 99026 "PTE Migr. Dataset Errors"
                 }
                 field("Source Table Name"; Rec."Source Table Name")
                 {
-                    ToolTip = 'Specifies the name of the Source Table.';
+                    ToolTip = 'Specifies the name of the Table with an error.';
                     StyleExpr = StyleOption;
                     ApplicationArea = All;
                 }
                 field("Source Field Name"; Rec."Source Field Name")
                 {
-                    ToolTip = 'Specifies the name of the Source Field.';
+                    ToolTip = 'Specifies the name of the Field with an error.';
                     StyleExpr = StyleOption;
                     ApplicationArea = All;
                 }
