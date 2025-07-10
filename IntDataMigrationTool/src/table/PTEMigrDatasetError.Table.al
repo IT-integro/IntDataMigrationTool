@@ -15,13 +15,13 @@ table 99025 "PTE Migr. Dataset Error"
         }
         field(2; "Source Table Name"; Text[150])
         {
-            Caption = 'Source Table Name';
+            Caption = 'Table Name';
             TableRelation = "PTE Migration Dataset Table"."Source Table Name";
             DataClassification = ToBeClassified;
         }
         field(3; "Source Field Name"; Text[150])
         {
-            Caption = 'Source Field Name';
+            Caption = 'Field Name';
             DataClassification = ToBeClassified;
         }
         field(4; "Line No."; Integer)
