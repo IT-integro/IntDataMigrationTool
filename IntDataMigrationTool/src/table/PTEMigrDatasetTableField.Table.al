@@ -16,7 +16,7 @@ table 99018 "PTE Migr. Dataset Table Field"
         field(2; "Source table name"; Text[150])
         {
             Caption = 'Source table name';
-            TableRelation = "PTE Migration Dataset Table"."Source Table Name";
+            TableRelation = "PTE Migration Dataset Table"."Source Table Name" where("Migration Dataset Code" = field("Migration Dataset Code"));
             DataClassification = ToBeClassified;
         }
         field(10; "Source SQL Database Code"; Code[20])
@@ -67,7 +67,7 @@ table 99018 "PTE Migr. Dataset Table Field"
         {
             Caption = 'Target table name';
             DataClassification = ToBeClassified;
-            TableRelation = "PTE Migration Dataset Table"."Target Table Name" where("Source Table Name" = field("Source table name"));
+            TableRelation = "PTE Migration Dataset Table"."Target Table Name" where("Migration Dataset Code" = field("Migration Dataset Code"), "Source Table Name" = field("Source table name"));
             Editable = false;
         }
 
