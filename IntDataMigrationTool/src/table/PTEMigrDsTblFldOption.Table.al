@@ -15,7 +15,7 @@ table 99019 "PTE Migr. Ds. Tbl. Fld. Option"
         field(2; "Source table name"; Text[150])
         {
             Caption = 'Source table name';
-            TableRelation = "PTE Migration Dataset Table"."Source Table Name";
+            TableRelation = "PTE Migration Dataset Table"."Source Table Name" where("Migration Dataset Code" = field("Migration Dataset Code"));
             DataClassification = ToBeClassified;
         }
         field(10; "Source SQL Database Code"; Code[20])
@@ -64,7 +64,7 @@ table 99019 "PTE Migr. Ds. Tbl. Fld. Option"
         {
             Caption = 'Target table name';
             FieldClass = FlowField;
-            CalcFormula = lookup("PTE Migration Dataset Table"."Target Table Name" where("Source Table Name" = field("Source table name")));
+            CalcFormula = lookup("PTE Migration Dataset Table"."Target Table Name" where("Source Table Name" = field("Source table name"), "Migration Dataset Code" = field("Migration Dataset Code")));
             Editable = false;
         }
 
@@ -72,7 +72,7 @@ table 99019 "PTE Migr. Ds. Tbl. Fld. Option"
         {
             Caption = 'Target Field name';
             FieldClass = FlowField;
-            CalcFormula = lookup("PTE Migr. Dataset Table Field"."Target Field name" where("Source Table Name" = field("Source table name"), "Source Field Name" = field("Source Field Name")));
+            CalcFormula = lookup("PTE Migr. Dataset Table Field"."Target Field name" where("Source Table Name" = field("Source table name"), "Source Field Name" = field("Source Field Name"), "Migration Dataset Code" = field("Migration Dataset Code")));
             Editable = false;
         }
 

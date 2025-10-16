@@ -50,7 +50,7 @@ table 99031 PTEMigrDsTableFieldAddTarget
         {
             Caption = 'Target table name';
             DataClassification = ToBeClassified;
-            TableRelation = "PTE Migration Dataset Table"."Target Table Name" where("Source Table Name" = field("Source table name"));
+            TableRelation = "PTE Migration Dataset Table"."Target Table Name" where("Source Table Name" = field("Source table name"), "Migration Dataset Code" = field("Migration Dataset Code"));
             Editable = false;
         }
     }

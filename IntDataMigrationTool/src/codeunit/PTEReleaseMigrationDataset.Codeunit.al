@@ -38,6 +38,9 @@ codeunit 99002 "PTE Release Migration Dataset"
         PTEMigrDatasetError.SetRange("Migration Dataset Code", PTEMigrationDataset.Code);
         PTEMigrDatasetError.DeleteAll();
 
+        PTEMigrDatasetError.SetRange("Migration Dataset Code", '');
+        PTEMigrDatasetError.DeleteAll();
+
         PTEMigrationDatasetTable.SetRange("Migration Dataset Code", PTEMigrationDataset.Code);
         PTEMigrationDatasetTable.SetRange("Skip in Mapping", false);
         TableCount := PTEMigrationDatasetTable.Count();
