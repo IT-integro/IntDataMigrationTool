@@ -123,6 +123,19 @@ page 99013 "PTE Migration Dataset Card"
                         PTECopyMappingFromDataset.Run(Rec);
                     end;
                 }
+                action("Export CSV Mapping to JSON")
+                {
+                    Image = ExportToExcel;
+                    ApplicationArea = All;
+                    ToolTip = 'Export CSV Mapping to JSON file';
+                    Ellipsis = true;
+                    trigger OnAction()
+                    var
+                        PTEMigrationDatasetMapping: Codeunit PTEMigrationDatasetMapping;
+                    begin
+                        PTEMigrationDatasetMapping.GetMigrationDatasetMapping(Rec."Code");
+                    end;
+                }
             }
             action("Release")
             {

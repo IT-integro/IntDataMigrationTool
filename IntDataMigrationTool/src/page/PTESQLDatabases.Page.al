@@ -143,6 +143,25 @@ page 99005 "PTE SQL Databases"
                 RunObject = Page "PTE SQL Database COmpanies";
                 RunPageLink = "SQL Database Code" = field("Code");
             }
+            action("Migrate From Csv")
+            {
+                Caption = 'Migrate from CSV';
+                ToolTip = 'Migrate data from CSV files to SQL Database';
+                ApplicationArea = All;
+                Image = Import;
+                trigger OnAction()
+                var
+                    PTEMigrateFromCsvFile: Codeunit PTEMigrateFromCsvFile;
+                begin
+                    PTEMigrateFromCsvFile.Run();
+                end;
+
+
+            }
+        }
+        area(Promoted)
+        {
+            actionref(PromMigrateFromCsv; "Migrate From Csv") { }
         }
     }
     var

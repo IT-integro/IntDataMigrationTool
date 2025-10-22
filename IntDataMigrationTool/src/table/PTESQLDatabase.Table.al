@@ -106,7 +106,7 @@ table 99008 "PTE SQL Database"
 
     procedure GetDatabaseConnectionString(): Text
     begin
-        exit('Server=' + "Server Name" + ';Database=' + "Database Name" + ';User ID=' + "User Name" + ';Password=' + GetPassword() + ';Encrypt=False;');
+        exit('Server=' + "Server Name" + ';Database=' + "Database Name" + ';User ID=' + "User Name" + ';Password="' + GetPassword() + '";Encrypt=False;');
     end;
 
     procedure GetMetadata()

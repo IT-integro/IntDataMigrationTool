@@ -100,6 +100,20 @@ table 99004 "PTE Migration Dataset Table"
                     Rec.Validate("Target table name", '');
             end;
         }
+        field(1000; "Source Table No."; Integer)
+        {
+            Caption = 'Source Table No.';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = lookup("PTE App. Object Table".ID where("SQL Database Code" = field("Source SQL Database Code"), Name = field("Source table name")));
+        }
+        field(1001; "Target Table No."; Integer)
+        {
+            Caption = 'Target Table No.';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = lookup("PTE App. Object Table".ID where("SQL Database Code" = field("Target SQL Database Code"), Name = field("Target table name")));
+        }
     }
 
     keys
