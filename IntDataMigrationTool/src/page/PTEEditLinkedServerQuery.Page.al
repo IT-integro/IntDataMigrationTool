@@ -13,7 +13,7 @@ page 99034 "PTE Edit Linked Server Query"
             {
                 Caption = 'General';
                 ShowCaption = false;
-                usercontrol(UserControlDesc; "Microsoft.Dynamics.Nav.Client.WebPageViewer")
+                usercontrol(UserControlDesc; "WebPageViewer")
                 {
                     trigger ControlAddInReady(callbackUrl: Text)
                     begin

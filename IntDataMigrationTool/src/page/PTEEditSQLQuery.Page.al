@@ -13,7 +13,7 @@ page 99031 "PTE Edit SQL Query"
             {
                 Caption = 'General';
                 ShowCaption = false;
-                usercontrol(UserControlDesc; "Microsoft.Dynamics.Nav.Client.WebPageViewer")
+                usercontrol(UserControlDesc; "WebPageViewer")
                 {
                     trigger ControlAddInReady(callbackUrl: Text)
                     begin
