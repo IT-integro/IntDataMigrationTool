@@ -15,13 +15,9 @@ codeunit 99022 PTEMigrateFromCsvFile
     local procedure GetZipFileContentFromBase64(ZipBase64Content: Text)
     var
         TempBlob: Codeunit "Temp Blob";
-        DataCompression: Codeunit "Data Compression";
         Base64Convert: Codeunit "Base64 Convert";
-        ZipInStream, ZipContentInStream : InStream;
-        tmp: Text;
-        FileContent: TextBuilder;
-        ZipOutStream, ZipContentOutStream : OutStream;
-        ZipContent: List of [Text];
+        ZipInStream: InStream;
+        ZipOutStream: OutStream;
     begin
         TempBlob.CreateOutStream(ZipOutStream, TextEncoding::Windows);
 
@@ -29,18 +25,7 @@ codeunit 99022 PTEMigrateFromCsvFile
 
         TempBlob.CreateInStream(ZipInStream, TextEncoding::Windows);
 
-        DataCompression.OpenZipArchive(ZipInStream, false);
-        DataCompression.GetEntryList(ZipContent);
-
-        Clear(TempBlob);
-        TempBlob.CreateOutStream(ZipContentOutStream, TextEncoding::Windows);
-        DataCompression.ExtractEntry(ZipContent.Get(1), ZipContentOutStream);
-
-        TempBlob.CreateInStream(ZipContentInStream);
-        repeat
-            ZipContentInStream.ReadText(tmp);
-            FileContent.AppendLine(tmp);
-        until ZipContentInStream.EOS;
+        GetZipFileContentFromFile(ZipInStream);
     end;
 
     local procedure GetZipFileContentFromFile(ZipInStream: InStream)
