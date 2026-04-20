@@ -275,9 +275,8 @@ table 99004 "PTE Migration Dataset Table"
                 if PTEAppObjectTableField.FindFirst() then begin
                     PTEMigrDatasetTableField."Target table name" := TargetTableName;
                     PTEMigrDatasetTableField.Validate("Target Field name", PTEAppObjectTableField.Name);
-                end else
-                    PTEMigrDatasetTableField.Validate("Target Field name", '');
-                PTEMigrDatasetTableField.Modify();
+                    PTEMigrDatasetTableField.Modify();
+                end;
             until PTEMigrDatasetTableField.Next() = 0;
     end;
 
